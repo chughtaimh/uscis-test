@@ -271,8 +271,10 @@
             if (incorrectAnswers.length > 0) {
                 score.innerHTML += `<h3>Review Incorrect Answers:</h3>`;
                 incorrectAnswers.forEach(item => {
-                    score.innerHTML += `<p><strong>Question:</strong> ${item.question}</p>
-                                        <p><strong>Options:</strong> ${item.options}</p>`;
+                    score.innerHTML += `<div style="border: 2px solid #ccc; margin: 10px; padding: 5px;">
+                                            <p><strong>Questions:</strong> ${item.question}</p>
+                                            <p><strong>Correct Answer:</strong> ${item.options}</p>
+                                        </div>`;
                 });
             }
             result.style.display = 'block';
