@@ -36,7 +36,7 @@ Contributions to improve the app are welcome. Please submit a pull request or op
 
 ## License
 
-This project is open source and available under the [MIT License](https://opensource.org/licenses/MIT).
+This project is open source and available under the [Apache-2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
 
 ## Contact
 
