@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Citizenship Practice Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            text-align: center;
+        }
+        .question {
+            margin: 20px;
+        }
+        .options {
+            cursor: pointer;
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        .answer {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            width: 200px;
+            background-color: #f0f0f0;
+            border: none;
+        }
+        .answer:hover {
+            background-color: #e9e9e9;
+        }
+        #result {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>USCIS Civics Test</h1>
+    <div id="quiz-container">
+        <div id="question-container" class="question"></div>
+        <div id="options-container" class="options"></div>
+        <button onclick="markCorrect()">Got it right</button>
+        <button onclick="markIncorrect()">Got it wrong</button>
+        <button onclick="nextQuestion()">Next Question</button>
+    </div>
+    <div id="result" style="display:none;">
+        <p id="score"></p>
+        <button onclick="restartTest()">New Test</button>
+    </div>
+
+    <script>
+        const questions = [
+            { question: "What is the supreme law of the land?", options: ["The Constitution", "The President", "The Supreme Court"], answer: "The Constitution" },
+            { question: "What does the Constitution do?", options: ["Sets up the government", "Defines the law", "Protects basic rights of Americans"], answer: "Sets up the government" },
+            // Add more questions in similar format
+        ];
+
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let questionsAttempted = 0;
+
+        function displayQuestion() {
+            const questionObj = questions[currentQuestionIndex];
+            const questionContainer = document.getElementById('question-container');
+            const optionsContainer = document.getElementById('options-container');
+
+            questionContainer.innerHTML = `<h2>${questionObj.question}</h2>`;
+            optionsContainer.innerHTML = questionObj.options.map(option => `<p>${option}</p>`).join('');
+
+            if (questionsAttempted >= 10) {
+                showResults();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                questionsAttempted++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function markCorrect() {
+            correctAnswers++;
+            nextQuestion();
+        }
+
+        function markIncorrect() {
+            nextQuestion();
+        }
+
+        function showResults() {
+            document.getElementById('quiz-container').style.display = 'none';
+            const result = document.getElementById('result');
+            const score = document.getElementById('score');
+            score.innerHTML = `Good job! You got ${correctAnswers} out of 10 right.`;
+            result.style.display = 'block';
+        }
+
+        function restartTest() {
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            questionsAttempted = 0;
+            document.getElementById('result').style.display = 'none';
+            displayQuestion();
+            document.getElementById('quiz-container').style.display = 'block';
+        }
+
+        displayQuestion();
+    </script>
+</body>
+</html>
