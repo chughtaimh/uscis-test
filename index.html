@@ -49,11 +49,24 @@
     </div>
 
     <script>
-        const questions = [
-            { question: "What is the supreme law of the land?", options: ["The Constitution", "The President", "The Supreme Court"], answer: "The Constitution" },
-            { question: "What does the Constitution do?", options: ["Sets up the government", "Defines the law", "Protects basic rights of Americans"], answer: "Sets up the government" },
-            // Add more questions in similar format
-        ];
+const questions = [
+    { question: "What is the supreme law of the land?", options: ["The Constitution"], answer: "The Constitution" },
+    { question: "What does the Constitution do?", options: ["Sets up the government", "Defines the government", "Protects basic rights of Americans"], answer: "Sets up the government" },
+    { question: "The idea of self-government is in the first three words of the Constitution. What are these words?", options: ["We the People"], answer: "We the People" },
+    { question: "What is an amendment?", options: ["A change to the Constitution", "An addition to the Constitution"], answer: "A change to the Constitution" },
+    { question: "What do we call the first ten amendments to the Constitution?", options: ["The Bill of Rights"], answer: "The Bill of Rights" },
+    { question: "What is one right or freedom from the First Amendment?", options: ["Speech", "Religion", "Assembly", "Press", "Petition the government"], answer: "Speech" },
+    { question: "How many amendments does the Constitution have?", options: ["Twenty-seven (27)"], answer: "Twenty-seven (27)" },
+    { question: "What did the Declaration of Independence do?", options: ["Announced our independence from Great Britain", "Declared our independence from Great Britain", "Said that the United States is free from Great Britain"], answer: "Announced our independence from Great Britain" },
+    { question: "What are two rights in the Declaration of Independence?", options: ["Life", "Liberty", "Pursuit of happiness"], answer: "Life" },
+    { question: "What is freedom of religion?", options: ["You can practice any religion, or not practice a religion"], answer: "You can practice any religion, or not practice a religion" },
+    { question: "What is the economic system in the United States?", options: ["Capitalist economy", "Market economy"], answer: "Capitalist economy" },
+    { question: "What is the rule of law?", options: ["Everyone must follow the law", "Leaders must obey the law", "Government must obey the law", "No one is above the law"], answer: "Everyone must follow the law" },
+    { question: "Name one branch or part of the government.", options: ["Congress", "President", "The courts"], answer: "Congress" },
+    { question: "What stops one branch of government from becoming too powerful?", options: ["Checks and balances", "Separation of powers"], answer: "Checks and balances" },
+    { question: "Who is in charge of the executive branch?", options: ["The President"], answer: "The President" }
+    // Add up to 100 questions in the same format.
+];
 
         let currentQuestionIndex = 0;
         let correctAnswers = 0;
