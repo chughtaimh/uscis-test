@@ -9,6 +9,9 @@
             font-family: Arial, sans-serif;
             padding: 20px;
             text-align: center;
+            position: relative; /* Set the positioning context */
+            min-height: 100vh; /* Ensure the body takes at least the full height of the viewport */
+            margin: 0; /* Remove default margin */
         }
         .question {
             margin: 20px;
@@ -17,6 +20,19 @@
             cursor: pointer;
             padding: 5px;
             border: 1px solid #ddd;
+            height: 60vh; /* 70% of the viewport height */
+            overflow-y: auto; /* Add a vertical scrollbar if needed */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+        }
+        #button-container {
+            position: absolute;
+            bottom: 5%; /* 5% margin from the bottom of the page */
+            left: 0;
+            width: 100%;
+            text-align: center; /* Center align the buttons */
         }
         .answer {
             display: block;
@@ -39,15 +55,16 @@
     <div id="quiz-container">
         <div id="question-container" class="question"></div>
         <div id="options-container" class="options"></div>
+    <div id="button-container">
         <button onclick="markCorrect()">Got it right</button>
         <button onclick="markIncorrect()">Got it wrong</button>
         <button onclick="nextQuestion()">Next Question</button>
+    </div>
     </div>
     <div id="result" style="display:none;">
         <p id="score"></p>
         <button onclick="restartTest()">New Test</button>
     </div>
-
     <script>
 const questions = [
     { question: "What is the supreme law of the land?", options: ["The Constitution"], answer: "The Constitution" },
