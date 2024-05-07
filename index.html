@@ -86,10 +86,20 @@ const questions = [
         }
 
         function nextQuestion() {
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                questionsAttempted++;
-                displayQuestion();
+            if (questionsAttempted < 10) {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * questions.length);
+                } while (questions[randomIndex].used && questionsAttempted < questions.length);
+
+                if (!questions[randomIndex].used) {
+                    questions[randomIndex].used = true;
+                    currentQuestionIndex = randomIndex;
+                    questionsAttempted++;
+                    displayQuestion();
+                } else if (questionsAttempted >= questions.length) {
+                    showResults();
+                }
             } else {
                 showResults();
             }
