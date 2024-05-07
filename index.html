@@ -6,26 +6,47 @@
     <title>U.S. Citizenship Practice Test</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             padding: 20px;
             text-align: center;
             position: relative; /* Set the positioning context */
             min-height: 100vh; /* Ensure the body takes at least the full height of the viewport */
             margin: 0; /* Remove default margin */
+            color: #333; /* Dark grey color for better readability */
+            background-color: #f9f9f9; /* Light grey background for a subtle contrast */
+
         }
+        h1 {
+            font-size: 2.5em; /* Larger and bolder title */
+            margin-bottom: 0.5em; /* Proper spacing under the title */
+            color: #007BFF; /* Use the button color to maintain consistency */
+        }
+
         .question {
             margin: 20px;
+            font-size: 1.5em; /* Larger font size for questions to make them stand out */
+            font-weight: bold; /* Bold font weight for questions */
         }
         .options {
             cursor: pointer;
             padding: 5px;
-            border: 1px solid #ddd;
-            height: 60vh; /* 70% of the viewport height */
+            border: 1px solid #ddd; /* Subtle borders */
+            height: 50vh; /* 50% of the viewport height */
             overflow-y: auto; /* Add a vertical scrollbar if needed */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-around;
+            background-color: #ffffff; /* White background for options for contrast */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Soft shadow for depth */
+        }
+        .options p {
+            padding: 10px 20px;
+            width: 80%; /* Width control for better alignment */
+            text-align: center;
+            background-color: #f0f0f0; /* Light background for each option */
+            border-radius: 5px; /* Rounded corners for options */
+            transition: background-color 0.3s; /* Smooth transition for interactivity */
         }
         #button-container {
             position: absolute;
