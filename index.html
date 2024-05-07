@@ -208,7 +208,7 @@
         ];
 
         let incorrectAnswers = []; // Array to store incorrect answers
-        
+
         let currentQuestionIndex = 0;
         let correctAnswers = 0;
         let questionsAttempted = 0;
@@ -219,11 +219,14 @@
             const optionsContainer = document.getElementById('options-container');
 
             questionContainer.innerHTML = `<h2>${questionObj.question}</h2>`;
-            optionsContainer.innerHTML = questionObj.options.map(option => `<p>${option}</p>`).join('');
+            optionsContainer.innerHTML = '<p>Click here to show answers...</p>'; // Placeholder text
 
-            if (questionsAttempted > 10) {
-                showResults();
-            }
+            // Add click event listener to reveal answers
+            optionsContainer.onclick = function() {
+                if (optionsContainer.innerHTML === '<p>Click here to show answers...</p>') { // Check to prevent re-rendering
+                    optionsContainer.innerHTML = questionObj.options.map(option => `<p>${option}</p>`).join('');
+                }
+            };
         }
 
         function nextQuestion() {
