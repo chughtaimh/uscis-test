@@ -165,13 +165,13 @@ const questions = [
             questionContainer.innerHTML = `<h2>${questionObj.question}</h2>`;
             optionsContainer.innerHTML = questionObj.options.map(option => `<p>${option}</p>`).join('');
 
-            if (questionsAttempted >= 10) {
+            if (questionsAttempted > 10) {
                 showResults();
             }
         }
 
         function nextQuestion() {
-            if (questionsAttempted <= 10) {
+            if (questionsAttempted < 10) {
                 let randomIndex;
                 do {
                     randomIndex = Math.floor(Math.random() * questions.length);
