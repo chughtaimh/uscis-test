@@ -171,7 +171,7 @@ const questions = [
         }
 
         function nextQuestion() {
-            if (questionsAttempted < 10) {
+            if (questionsAttempted <= 10) {
                 let randomIndex;
                 do {
                     randomIndex = Math.floor(Math.random() * questions.length);
