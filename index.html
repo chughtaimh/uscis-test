@@ -283,13 +283,20 @@
             document.getElementById('quiz-container').style.display = 'none';
             const result = document.getElementById('result');
             const score = document.getElementById('score');
-            score.innerHTML = `Good job! You got ${correctAnswers} out of 10 right.`;
+
+            // Check the number of correct answers to display an appropriate message
+            if (correctAnswers < 6) {
+                score.innerHTML = `Try Again! You got ${correctAnswers} out of 10 right.`;
+            } else {
+                score.innerHTML = `Good job! You got ${correctAnswers} out of 10 right.`;
+            }
+
             if (incorrectAnswers.length > 0) {
                 score.innerHTML += `<h3>Review Incorrect Answers:</h3>`;
                 incorrectAnswers.forEach(item => {
                     score.innerHTML += `<div style="border: 2px solid #ccc; margin: 10px; padding: 5px;">
-                                            <p><strong>Questions:</strong> ${item.question}</p>
-                                            <p><strong>Correct Answer:</strong> ${item.options}</p>
+                                            <p><strong>Question:</strong> ${item.question}</p>
+                                            <p><strong>Correct Answers:</strong> ${item.options}</p>
                                         </div>`;
                 });
             }
