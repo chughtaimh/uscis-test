@@ -20,6 +20,7 @@
     --radius:26px;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  [hidden]{ display:none !important; }   /* the hidden attribute must always win over class display rules */
   html,body{margin:0; padding:0;}
   body{
     font-family:"Avenir Next Rounded","Nunito","Quicksand","Trebuchet MS","Segoe UI",system-ui,sans-serif;
@@ -133,6 +134,85 @@
 
   canvas#confetti{ position:fixed; inset:0; width:100vw; height:100vh; pointer-events:none; z-index:50; }
 
+  /* ---------- Menu (mode chooser) ---------- */
+  .modegrid{ display:flex; flex-direction:column; gap:14px; margin:8px auto 0; max-width:470px; }
+  .modebtn{
+    display:flex; align-items:center; gap:16px; text-align:left; width:100%;
+    cursor:pointer; border:none; font-family:inherit; background:#fff;
+    border-radius:22px; padding:18px 20px; box-shadow:var(--shadow-sm);
+    transition:transform .07s ease, box-shadow .15s ease;
+  }
+  .modebtn:active{ transform:translateY(2px); }
+  .modebtn:focus-visible{ outline:4px solid rgba(95,180,140,.55); outline-offset:3px; }
+  .modebtn .mi{ font-size:30px; width:62px; height:62px; flex:0 0 62px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .modebtn .mwrap{ flex:1; }
+  .modebtn .mt{ font-size:22px; font-weight:800; color:var(--ink); line-height:1.15; }
+  .modebtn .md{ font-size:15px; font-weight:700; color:var(--ink-soft); margin-top:3px; line-height:1.35; }
+  .modebtn .marrow{ font-size:24px; color:#c7b8a6; font-weight:800; }
+  .mi.civics{ background:#dff1e7; } .mi.reading{ background:#e3eefb; }
+  .mi.writing{ background:#fff2e2; } .mi.speaking{ background:#f3e9ff; }
+  .settingslink{ background:none; border:none; cursor:pointer; font-family:inherit; font-size:15px; font-weight:800; color:var(--ink-soft); margin-top:22px; text-decoration:underline; }
+
+  /* ---------- Mode top bar ---------- */
+  .modetop{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .backbtn{ border:none; cursor:pointer; font-family:inherit; font-size:15px; font-weight:800; color:var(--neutral-ink); background:#fff; padding:10px 16px; border-radius:999px; box-shadow:var(--shadow-sm); }
+  .backbtn:active{ transform:translateY(1px); }
+  .mtcount{ margin-left:auto; font-size:15px; font-weight:800; color:var(--ink-soft); }
+
+  /* ---------- Mode panel ---------- */
+  .panel{ position:relative; background:#fff; border-radius:var(--radius); padding:28px 24px 26px; box-shadow:var(--shadow); }
+  .panel-label{ font-size:13px; font-weight:800; letter-spacing:1.4px; text-transform:uppercase; color:#9a8b7c; margin-bottom:12px; text-align:center; }
+  .sentence-big{ font-size:clamp(24px,5.6vw,32px); font-weight:800; line-height:1.34; color:var(--qink); text-align:center; }
+  .dictation-ph{ text-align:center; font-size:46px; margin:6px 0; }
+  .help{ font-size:16px; color:var(--ink-soft); line-height:1.5; text-align:center; margin-top:14px; }
+
+  /* extra button colors */
+  .bigbtn.hear{ background:linear-gradient(180deg,#8fc0f0,#6ea8e6); }
+  .bigbtn.mic{ background:linear-gradient(180deg,#b79cf0,#9a7be6); }
+  .bigbtn.menu{ background:linear-gradient(180deg,#efe5d8,#e4d8c8); color:var(--neutral-ink); box-shadow:0 4px 0 rgba(0,0,0,.06), var(--shadow-sm); }
+  .bigbtn.recording{ background:linear-gradient(180deg,#ff8f7f,#ef6f57); animation:recpulse 1.2s ease infinite; }
+  @keyframes recpulse{ 0%,100%{ box-shadow:0 5px 0 rgba(0,0,0,.10), var(--shadow-sm);} 50%{ box-shadow:0 5px 0 rgba(0,0,0,.10), 0 0 0 7px rgba(239,111,87,.22);} }
+  .mtscore{ font-size:15px; font-weight:800; color:var(--yellow-d); margin-left:12px; }
+
+  /* listening + thinking states */
+  .listening{ display:flex; align-items:center; justify-content:center; gap:10px; font-weight:800; color:#7a5ec2; margin-top:16px; font-size:18px; }
+  .dot{ width:12px; height:12px; border-radius:50%; background:#9a7be6; animation:blink 1s infinite; }
+  .dot:nth-child(2){ animation-delay:.2s; } .dot:nth-child(3){ animation-delay:.4s; }
+  @keyframes blink{ 0%,100%{opacity:.25;} 50%{opacity:1;} }
+  .thinking{ text-align:center; font-weight:800; color:var(--ink-soft); margin-top:16px; font-size:17px; }
+
+  /* result banners */
+  .result{ margin-top:18px; border-radius:18px; padding:18px 18px 16px; animation:fade .3s ease both; }
+  .result.pass{ background:#e3f6ec; } .result.fail{ background:#ffeae4; }
+  .result .rtitle{ font-size:23px; font-weight:800; }
+  .result.pass .rtitle{ color:#1f6b46; } .result.fail .rtitle{ color:#a4452f; }
+  .result .heard{ font-weight:700; font-size:15px; margin-top:8px; color:var(--ink-soft); line-height:1.45; }
+  .result .correct{ font-weight:800; font-size:18px; margin-top:8px; color:var(--ansink); }
+
+  /* photo upload */
+  .photo-input{ display:none; }
+  .photo-preview{ margin-top:16px; text-align:center; }
+  .photo-preview img{ max-width:100%; max-height:240px; border-radius:16px; box-shadow:var(--shadow-sm); }
+
+  /* word list reference */
+  .wordlist{ margin-top:16px; background:var(--bg2); border-radius:16px; padding:4px 18px; box-shadow:var(--shadow-sm); }
+  .wordlist summary{ cursor:pointer; font-weight:800; color:var(--qink); padding:14px 0; font-size:16px; list-style:none; }
+  .wordlist summary::-webkit-details-marker{ display:none; }
+  .wordlist summary::before{ content:"📋 "; }
+  .wordlist h4{ margin:10px 0 3px; font-size:13px; color:var(--anslabel); text-transform:uppercase; letter-spacing:1px; }
+  .wordlist p{ margin:0 0 10px; line-height:1.55; font-size:16px; color:var(--ink); }
+
+  /* settings form */
+  .field{ text-align:left; margin-bottom:16px; }
+  .field label{ display:block; font-weight:800; margin-bottom:6px; color:var(--ink); font-size:16px; }
+  .field input[type=password], .field input[type=text]{ width:100%; font-family:inherit; font-size:17px; padding:14px; border-radius:14px; border:2px solid var(--neutral); background:#fff; color:var(--ink); }
+  .checkrow{ display:flex; align-items:center; gap:10px; font-weight:700; color:var(--ink); font-size:16px; text-align:left; margin-bottom:14px; }
+  .checkrow input{ width:22px; height:22px; }
+  .note{ font-size:13px; color:var(--ink-soft); line-height:1.5; text-align:left; background:var(--bg2); border-radius:12px; padding:12px 14px; margin-bottom:16px; }
+  .linkbtn{ background:none; border:none; color:#6ea8e6; font-weight:800; cursor:pointer; font-family:inherit; font-size:15px; text-decoration:underline; padding:0; }
+  .keystatus{ font-size:14px; font-weight:800; margin-bottom:14px; }
+  .keystatus.on{ color:var(--green-d); } .keystatus.off{ color:var(--ink-soft); }
+
   @media (max-width:380px){
     body{ padding:14px; }
     .card{ padding:24px 20px; }
@@ -151,14 +231,50 @@
 <body>
 <div class="app">
 
-  <!-- START -->
+  <!-- MENU -->
   <section id="start" class="screen active center">
     <div class="emblem">🗽</div>
     <h1 class="title">Citizenship Practice</h1>
-    <p class="subtitle">U.S. Civics Test · New York · 100 questions</p>
-    <p class="lead">Take your time — there's no timer and nothing to lose. Read a card, see if you remember the answer, then tap how you did. 💛</p>
-    <button id="startBtn" class="bigbtn start">Start</button>
-    <p class="tiny">Tip: you can hear each question read aloud with the 🔊 button.</p>
+    <p class="subtitle">Get ready for your U.S. Citizenship interview</p>
+    <p class="lead">Pick a part to practice. Take your time — there's no timer and nothing to lose. 💛</p>
+
+    <div class="modegrid">
+      <button id="civicsBtn" class="modebtn">
+        <span class="mi civics">📘</span>
+        <span class="mwrap">
+          <span class="mt">Civics</span>
+          <span class="md">The 100 history &amp; government questions</span>
+        </span>
+        <span class="marrow">›</span>
+      </button>
+      <button id="readingBtn" class="modebtn">
+        <span class="mi reading">📖</span>
+        <span class="mwrap">
+          <span class="mt">Reading</span>
+          <span class="md">Read a sentence out loud</span>
+        </span>
+        <span class="marrow">›</span>
+      </button>
+      <button id="writingBtn" class="modebtn">
+        <span class="mi writing">✍️</span>
+        <span class="mwrap">
+          <span class="mt">Writing</span>
+          <span class="md">Listen, then write the sentence</span>
+        </span>
+        <span class="marrow">›</span>
+      </button>
+      <button id="speakingBtn" class="modebtn">
+        <span class="mi speaking">🗣️</span>
+        <span class="mwrap">
+          <span class="mt">Speaking</span>
+          <span class="md">Answer interview questions out loud</span>
+        </span>
+        <span class="marrow">›</span>
+      </button>
+    </div>
+
+    <button id="settingsBtn" class="settingslink">⚙️ Settings</button>
+    <p class="tiny">Tip: every part can be read aloud with the 🔊 button.</p>
   </section>
 
   <!-- QUIZ -->
@@ -166,6 +282,7 @@
     <div class="topbar">
       <div class="progresstrack"><div id="progressFill" class="progressfill"></div></div>
       <div class="statsrow">
+        <button id="civicsMenuBtn" class="backbtn">← Menu</button>
         <span id="doneCount" class="stat">0 of 100 done</span>
         <span id="scoreCount" class="stat score">⭐ 0 right</span>
         <button id="restartBtn" class="restartbtn">↺ Start over</button>
@@ -199,7 +316,103 @@
     <h1 id="doneTitle" class="title">All done!</h1>
     <p id="finalScore" class="bigscore">You got 0 out of 100 right.</p>
     <p id="doneMsg" class="lead"></p>
-    <button id="againAllBtn" class="bigbtn start">Start again</button>
+    <button id="againAllBtn" class="bigbtn start">Practice again</button>
+    <button id="doneMenuBtn" class="bigbtn menu" style="max-width:340px;margin:12px auto 0;">← Back to menu</button>
+  </section>
+
+  <!-- READING -->
+  <section id="reading" class="screen">
+    <div class="modetop">
+      <button class="backbtn" data-menu>← Menu</button>
+      <span id="readCount" class="mtcount">1 of 12</span>
+      <span id="readScore" class="mtscore">⭐ 0</span>
+    </div>
+    <div class="progresstrack"><div id="readFill" class="progressfill"></div></div>
+    <div class="gap"></div>
+
+    <div class="panel">
+      <div class="panel-label">📖 Read this out loud</div>
+      <div id="readSentence" class="sentence-big"></div>
+      <div id="readListening" class="listening" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Listening… read it now</div>
+      <div id="readThinking" class="thinking" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Checking how you did…</div>
+      <div id="readResult"></div>
+      <div id="readNote" class="help" hidden></div>
+    </div>
+
+    <div class="gap"></div>
+    <button id="readMicBtn" class="bigbtn mic">🎤 Read it out loud</button>
+
+    <div id="readActions" class="actions" hidden>
+      <button id="readNextBtn" class="bigbtn show">Next sentence →</button>
+      <button id="readRetryBtn" class="bigbtn again">↻ Try again</button>
+    </div>
+
+    <details class="wordlist">
+      <summary>See the reading word list</summary>
+      <div id="readWords"></div>
+    </details>
+  </section>
+
+  <!-- WRITING -->
+  <section id="writing" class="screen">
+    <div class="modetop">
+      <button class="backbtn" data-menu>← Menu</button>
+      <span id="writeCount" class="mtcount">1 of 12</span>
+    </div>
+    <div class="progresstrack"><div id="writeFill" class="progressfill"></div></div>
+    <div class="gap"></div>
+
+    <div class="panel">
+      <div class="panel-label">✍️ Listen, then write it</div>
+      <div class="dictation-ph">🔊</div>
+      <div id="writeHelp" class="help">Press <b>Hear the sentence</b>, write it on paper, then take a photo.</div>
+      <div id="writePreview" class="photo-preview" hidden></div>
+      <div id="writeThinking" class="thinking" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Checking your writing…</div>
+      <div id="writeResult"></div>
+    </div>
+
+    <div class="gap"></div>
+    <button id="writeHearBtn" class="bigbtn hear">🔊 Hear the sentence</button>
+    <div class="gap"></div>
+    <input id="writePhoto" class="photo-input" type="file" accept="image/*" capture="environment">
+    <button id="writePhotoBtn" class="bigbtn mic">📷 Take a photo of what you wrote</button>
+    <button id="writeShowBtn" class="bigbtn show">Show me the sentence</button>
+
+    <div id="writeActions" class="actions" hidden>
+      <button id="writeGotBtn" class="bigbtn right">✓ I wrote it correctly</button>
+      <button id="writeRetryBtn" class="bigbtn again">↻ Try again</button>
+      <button id="writeNextBtn" class="bigbtn show">Next sentence →</button>
+    </div>
+
+    <details class="wordlist">
+      <summary>See the writing word list</summary>
+      <div id="writeWords"></div>
+    </details>
+  </section>
+
+  <!-- SPEAKING -->
+  <section id="speaking" class="screen">
+    <div class="modetop">
+      <button class="backbtn" data-menu>← Menu</button>
+      <span id="speakCount" class="mtcount">1 of 15</span>
+    </div>
+    <div class="progresstrack"><div id="speakFill" class="progressfill"></div></div>
+    <div class="gap"></div>
+
+    <div class="panel">
+      <div class="panel-label">🗣️ Answer out loud</div>
+      <div id="speakQuestion" class="sentence-big"></div>
+      <div class="help">Say your answer in simple, clear words. It's okay to say: <b>"Could you please repeat that?"</b></div>
+    </div>
+
+    <div class="gap"></div>
+    <button id="speakHearBtn" class="bigbtn hear">🔊 Hear the question</button>
+
+    <div class="actions" style="margin-top:16px;">
+      <button id="speakGotBtn" class="bigbtn right">✓ I answered it</button>
+      <button id="speakPracticeBtn" class="bigbtn again">↻ Practice more</button>
+      <button id="speakNextBtn" class="bigbtn show">Next question →</button>
+    </div>
   </section>
 
 </div>
@@ -213,6 +426,29 @@
     <div class="modalbtns">
       <button id="modalNo" class="bigbtn neutral">No, keep going</button>
       <button id="modalYes" class="bigbtn wrong">Yes, start over</button>
+    </div>
+  </div>
+</div>
+
+<div id="settings" class="modal" hidden>
+  <div class="modalbox">
+    <div class="modaltitle">⚙️ Settings</div>
+    <div id="keyStatus" class="keystatus off">No API key saved yet</div>
+    <div class="field">
+      <label for="keyInput">OpenAI API key</label>
+      <input id="keyInput" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+    </div>
+    <div class="checkrow">
+      <input id="modelToggle" type="checkbox">
+      <label for="modelToggle" style="margin:0;font-weight:700;">Higher accuracy for messy handwriting (costs a little more per photo)</label>
+    </div>
+    <div class="note">
+      The key is used for <b>photo grading in the Writing test</b>. It is saved <b>only in this browser, on this device</b> — never uploaded and never written into your website's code. The photo is sent straight to OpenAI to be read. On a shared computer, tap <b>Clear key</b> when you finish. Get a key at <button id="keyLink" class="linkbtn" type="button">platform.openai.com/api-keys</button>.
+    </div>
+    <div class="modalbtns">
+      <button id="keySave" class="bigbtn right">Save</button>
+      <button id="keyClear" class="bigbtn menu">Clear key</button>
+      <button id="settingsClose" class="bigbtn neutral">Close</button>
     </div>
   </div>
 </div>
@@ -236,7 +472,7 @@ var $ = function(id){ return document.getElementById(id); };
 
 /* ===== Screens ===== */
 function show(name){
-  ['start','quiz','done'].forEach(function(s){ $(s).classList.toggle('active', s===name); });
+  ['start','quiz','reading','writing','speaking','done'].forEach(function(s){ $(s).classList.toggle('active', s===name); });
 }
 
 /* ===== Shuffle ===== */
@@ -247,6 +483,8 @@ function shuffle(a){
 
 /* ===== Start / restart a fresh quiz ===== */
 function startQuiz(){
+  lastFinish = startQuiz;
+  stopAllSpeech();
   deck = [];
   for(var i=0;i<TOTAL;i++){ deck.push(i); }
   shuffle(deck);
@@ -452,24 +690,624 @@ function step(){
 function openModal(){ $('modal').removeAttribute('hidden'); }
 function closeModal(){ $('modal').setAttribute('hidden',''); }
 
+/* =====================================================================
+   ENGLISH TEST MODES — Reading, Writing, Speaking
+   Content reproduced from the USCIS English Study Packet
+   (official reading/writing vocabulary lists + practice sentences).
+   ===================================================================== */
+
+/* ----- Content data ----- */
+var READING_SENTENCES = [
+  "Who was the first President?",
+  "What is the capital of the United States?",
+  "When is Independence Day?",
+  "Where is the White House?",
+  "Why do people come to America?",
+  "Abraham Lincoln lived here.",
+  "The American flag has many colors.",
+  "A citizen can vote.",
+  "Who elects Congress?",
+  "Who is the Father of Our Country?",
+  "We have one country.",
+  "The President lives in the White House."
+];
+var WRITING_SENTENCES = [
+  "Citizens can vote.",
+  "The flag is red, white, and blue.",
+  "Washington is the capital.",
+  "Lincoln was President during the Civil War.",
+  "People pay taxes.",
+  "Memorial Day is in May.",
+  "Independence Day is in July.",
+  "We have freedom of speech.",
+  "Alaska is the largest state.",
+  "The President lives in the White House.",
+  "Citizens have the right to vote.",
+  "Washington was the first President."
+];
+var SPEAKING_QUESTIONS = [
+  "What is your full name?",
+  "What is your current address?",
+  "What is your date of birth?",
+  "Where were you born?",
+  "What is your marital status? Are you married?",
+  "How long have you been a permanent resident (green-card holder)?",
+  "What do you do for work?",
+  "Have you traveled outside the United States? When, and where?",
+  "Do you pay your taxes?",
+  "How many children do you have?",
+  "Have you ever been arrested or committed a crime?",
+  "Why do you want to become a U.S. citizen?",
+  "Do you support the Constitution and the form of government of the United States?",
+  "Are you willing to take the Oath of Allegiance to the United States?",
+  "Have you ever claimed to be a U.S. citizen before becoming one?"
+];
+var READING_WORDS = {
+  "People": "George Washington, Abraham Lincoln",
+  "Civics": "American flag, Bill of Rights, capital, citizen, city, Congress, country, Father of Our Country, government, President, right, Senators, state / states, White House",
+  "Places": "America, United States, U.S.",
+  "Holidays": "Presidents’ Day, Memorial Day, Flag Day, Independence Day, Labor Day, Columbus Day, Thanksgiving",
+  "Question words": "How, What, When, Where, Who, Why",
+  "Verbs": "can, come, do / does, elects, have / has, is / are / was / be, lives / lived, meet, name, pay, vote, want",
+  "Other (function)": "a, for, here, in, of, on, the, to, we",
+  "Other (content)": "colors, dollar bill, first, largest, many, most, north, one, people, second, south"
+};
+var WRITING_WORDS = {
+  "People": "Adams, Lincoln, Washington",
+  "Civics": "American Indians, capital, citizens, Civil War, Congress, Father of Our Country, flag, free, freedom of speech, President, right, Senators, state / states, White House",
+  "Places": "Alaska, California, Canada, Delaware, Mexico, New York City, United States, Washington, Washington, D.C.",
+  "Months": "February, May, June, July, September, October, November",
+  "Holidays": "Presidents’ Day, Memorial Day, Flag Day, Independence Day, Labor Day, Columbus Day, Thanksgiving",
+  "Verbs": "can, come, elect, have / has, is / was / be, lives / lived, meets, pay, vote, want",
+  "Other (function)": "and, during, for, here, in, of, on, the, to, we",
+  "Other (content)": "blue, dollar bill, fifty / 50, first, largest, most, north, one, one hundred / 100, people, red, second, south, taxes, white"
+};
+
+/* ----- Shared helpers ----- */
+var lastFinish = startQuiz;   // what the "Practice again" button on the Done screen repeats
+
+function escapeHtml(s){
+  return (s == null ? '' : String(s)).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function stopAllSpeech(){
+  if(canSpeak){ try{ window.speechSynthesis.cancel(); }catch(e){} }
+  var b = $('speakBtn'); if(b) b.classList.remove('speaking');
+}
+function speakText(text, rate){
+  if(!canSpeak || !text) return;
+  try{
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.rate = rate || 0.9; u.pitch = 1; u.lang = 'en-US';
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function goMenu(){
+  stopReadingCapture();
+  stopAllSpeech();
+  show('start');
+}
+function finishMode(o){
+  stopAllSpeech();
+  lastFinish = o.again || goMenu;
+  show('done');
+  $('doneEmoji').textContent = o.emoji;
+  $('doneTitle').textContent = o.title;
+  $('finalScore').textContent = o.scoreText;
+  $('doneMsg').textContent = o.msg;
+}
+function wordListHtml(obj){
+  var html = '';
+  for(var cat in obj){ if(obj.hasOwnProperty(cat)){
+    html += '<h4>' + escapeHtml(cat) + '</h4><p>' + escapeHtml(obj[cat]) + '</p>';
+  }}
+  return html;
+}
+
+/* ----- Lenient text matching (Reading) ----- */
+var NUM_WORDS = {zero:'0',one:'1',two:'2',three:'3',four:'4',five:'5',six:'6',seven:'7',eight:'8',nine:'9',ten:'10',eleven:'11',twelve:'12',thirteen:'13',fourteen:'14',fifteen:'15',sixteen:'16',seventeen:'17',eighteen:'18',nineteen:'19',twenty:'20',fifty:'50',hundred:'100'};
+var STOPWORDS = {a:1,an:1,the:1,of:1,to:1,in:1,on:1,for:1,and:1,is:1,are:1,was:1,be:1,do:1,does:1,has:1,have:1,we:1,here:1,during:1};
+function normalize(s){
+  s = (s || '').toLowerCase().replace(/[.,!?;:'"’“”()\-]/g,' ').replace(/\s+/g,' ').trim();
+  return s.split(' ').map(function(w){ return NUM_WORDS[w] || w; }).join(' ');
+}
+function contentWords(s){
+  return normalize(s).split(' ').filter(function(w){ return w && !STOPWORDS[w]; });
+}
+function readingMatch(target, said){
+  var want = contentWords(target);
+  if(!want.length) return true;
+  var heard = {};
+  normalize(said).split(' ').forEach(function(w){ if(w) heard[w] = 1; });
+  var hit = 0;
+  want.forEach(function(w){ if(heard[w]) hit++; });
+  return (hit / want.length) >= 0.8;
+}
+
+/* ===================== READING ===================== */
+/* The user reads the sentence cold (no "hear it first"). Pressing the mic button
+   turns the microphone on; getUserMedia only prompts the first time and the
+   browser remembers the grant after that. The recording is sent to OpenAI for
+   transcription, then auto-judged (pass/fail) and the score tally updates.
+   If no API key is set, we fall back to the browser's speech recognition. */
+var sttSupported = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window);
+var recognizer = null;
+var mediaStream = null, mediaRecorder = null, audioChunks = [], recTimer = null;
+var READ = { i:0, n:0, score:0, state:'idle' };   // state: idle | recording | busy | done
+
+function startReading(){
+  lastFinish = startReading;
+  stopReadingCapture();   // fresh start: release any leftover mic stream
+  READ.i = 0; READ.n = READING_SENTENCES.length; READ.score = 0;
+  $('readWords').innerHTML = wordListHtml(READING_WORDS);
+  show('reading');
+  renderReading();
+}
+function updateReadScore(){ $('readScore').textContent = '⭐ ' + READ.score; }
+function renderReading(){
+  cancelActiveCapture();   // stop any recorder/recognition but keep the mic stream for reuse
+  READ.state = 'idle';
+  $('readSentence').textContent = READING_SENTENCES[READ.i];
+  $('readCount').textContent = (READ.i + 1) + ' of ' + READ.n;
+  $('readFill').style.width = Math.round((READ.i / READ.n) * 100) + '%';
+  updateReadScore();
+  $('readResult').innerHTML = '';
+  $('readListening').setAttribute('hidden','');
+  $('readThinking').setAttribute('hidden','');
+  $('readNote').setAttribute('hidden',''); $('readNote').innerHTML = '';
+  $('readActions').setAttribute('hidden','');
+  setMicIdle();
+}
+function setMicIdle(){
+  var b = $('readMicBtn');
+  b.style.display = ''; b.disabled = false;
+  b.textContent = '🎤 Read it out loud';
+  b.classList.remove('recording');
+}
+function setMicRecording(){
+  var b = $('readMicBtn');
+  b.textContent = '■ I’m done reading';
+  b.classList.add('recording');
+  $('readListening').removeAttribute('hidden');
+  $('readResult').innerHTML = '';
+  $('readNote').setAttribute('hidden','');
+}
+function showReadNote(msg){
+  var n = $('readNote'); n.textContent = msg; n.removeAttribute('hidden');
+}
+
+/* Mic button toggles between start and stop */
+function readMicClick(){
+  if(READ.state === 'idle'){ startReadCapture(); }
+  else if(READ.state === 'recording'){ stopReadCapture(); }
+}
+function startReadCapture(){
+  var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  if(getKey() && canRecord){ startWhisperCapture(); }
+  else if(sttSupported){ startSttCapture(); }
+  else { showReadNote('To check your reading, add your OpenAI key in ⚙️ Settings, or open this on Chrome.'); }
+}
+
+/* --- Primary path: record audio, transcribe with OpenAI --- */
+function ensureMic(){
+  // Reuse one microphone stream for the whole Reading session, so the browser
+  // only asks for permission once — not on every sentence.
+  if(mediaStream){ return Promise.resolve(mediaStream); }
+  return navigator.mediaDevices.getUserMedia({ audio:true }).then(function(s){ mediaStream = s; return s; });
+}
+function startWhisperCapture(){
+  ensureMic().then(function(stream){
+    audioChunks = [];
+    try{ mediaRecorder = new MediaRecorder(stream); }
+    catch(e){ mediaRecorder = new MediaRecorder(stream, {}); }
+    mediaRecorder.ondataavailable = function(ev){ if(ev.data && ev.data.size) audioChunks.push(ev.data); };
+    mediaRecorder.onstop = function(){
+      var type = (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm';
+      var blob = new Blob(audioChunks, { type:type });
+      transcribeAudio(blob, type);   // keep the mic stream open for the next sentence (no re-prompt)
+    };
+    READ.state = 'recording';
+    setMicRecording();
+    mediaRecorder.start();
+    clearTimeout(recTimer);
+    recTimer = setTimeout(function(){ if(READ.state === 'recording') stopReadCapture(); }, 15000); // safety auto-stop
+  }).catch(function(err){
+    READ.state = 'idle'; setMicIdle();
+    if(err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')){
+      showReadNote('The microphone is blocked. Please allow microphone access in your browser, then tap “Read it out loud” again.');
+    } else if(sttSupported){ startSttCapture(); }
+    else { showReadNote('No microphone is available on this device.'); }
+  });
+}
+function transcribeAudio(blob, type){
+  var key = getKey();
+  if(!key){ READ.state='idle'; setMicIdle(); $('readThinking').setAttribute('hidden',''); showReadNote('Add your OpenAI key in ⚙️ Settings to check your reading.'); return; }
+  $('readThinking').removeAttribute('hidden');
+  var ext = type.indexOf('mp4') >= 0 ? 'mp4' : type.indexOf('ogg') >= 0 ? 'ogg' : type.indexOf('wav') >= 0 ? 'wav' : 'webm';
+  var fd = new FormData();
+  fd.append('file', blob, 'reading.' + ext);
+  fd.append('model', 'whisper-1');
+  fd.append('language', 'en');
+  fetch('https://api.openai.com/v1/audio/transcriptions', {
+    method:'POST', headers:{ 'Authorization':'Bearer ' + key }, body: fd
+  }).then(function(resp){
+    $('readThinking').setAttribute('hidden','');
+    if(!resp.ok){
+      READ.state='idle'; setMicIdle();
+      showReadNote(resp.status === 401 ? 'That API key did not work. Please check it in ⚙️ Settings.'
+        : resp.status === 429 ? 'OpenAI is busy or the account is out of credit. Please try again soon.'
+        : 'Could not check your reading (error ' + resp.status + ').');
+      return;
+    }
+    resp.json().then(function(data){ judgeReading((data && data.text) || ''); });
+  }).catch(function(){
+    $('readThinking').setAttribute('hidden','');
+    READ.state='idle'; setMicIdle();
+    showReadNote('No internet connection, or the request was blocked.');
+  });
+}
+
+/* --- Fallback path: browser speech recognition (no key) --- */
+function startSttCapture(){
+  try{
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(recognizer){ try{ recognizer.abort(); }catch(e){} }
+    recognizer = new SR();
+    recognizer.lang = 'en-US'; recognizer.interimResults = false; recognizer.maxAlternatives = 4;
+    recognizer._alts = [];
+    recognizer.onresult = function(e){
+      var alts = [];
+      for(var i=0;i<e.results.length;i++){ var r = e.results[i]; for(var j=0;j<r.length;j++){ alts.push(r[j].transcript); } }
+      recognizer._alts = alts;
+    };
+    recognizer.onerror = function(ev){
+      READ.state='idle'; $('readListening').setAttribute('hidden',''); setMicIdle();
+      showReadNote(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'
+        ? 'The microphone is blocked. Please allow it, then tap “Read it out loud” again.'
+        : 'Did not catch that — tap “Read it out loud” to try again.');
+    };
+    recognizer.onend = function(){
+      if(READ.state === 'recording' || READ.state === 'busy'){ judgeReadingAlts(recognizer._alts || []); }
+    };
+    READ.state = 'recording';
+    setMicRecording();
+    recognizer.start();
+  }catch(err){ READ.state='idle'; setMicIdle(); showReadNote('Could not start the microphone.'); }
+}
+
+function stopReadCapture(){
+  clearTimeout(recTimer);
+  if(mediaRecorder && READ.state === 'recording'){
+    READ.state = 'busy';
+    $('readListening').setAttribute('hidden','');
+    $('readMicBtn').classList.remove('recording');
+    $('readMicBtn').disabled = true;
+    try{ mediaRecorder.stop(); }catch(e){ READ.state='idle'; setMicIdle(); showReadNote('Something went wrong with the recording — please try again.'); }
+  } else if(recognizer && READ.state === 'recording'){
+    READ.state = 'busy';
+    $('readListening').setAttribute('hidden','');
+    $('readMicBtn').classList.remove('recording');
+    try{ recognizer.stop(); }catch(e){}
+  }
+}
+function releaseMic(){
+  if(mediaStream){ try{ mediaStream.getTracks().forEach(function(t){ t.stop(); }); }catch(e){} mediaStream = null; }
+}
+/* Stop an in-progress recording/recognition but KEEP the mic stream for reuse */
+function cancelActiveCapture(){
+  clearTimeout(recTimer);
+  if(recognizer){ try{ recognizer.onend = null; recognizer.abort(); }catch(e){} recognizer = null; }
+  if(mediaRecorder){ try{ mediaRecorder.onstop = null; if(mediaRecorder.state !== 'inactive') mediaRecorder.stop(); }catch(e){} mediaRecorder = null; }
+  audioChunks = [];
+  var l = $('readListening'); if(l) l.setAttribute('hidden','');
+  var t = $('readThinking'); if(t) t.setAttribute('hidden','');
+}
+/* Full teardown when leaving Reading: also release the microphone */
+function stopReadingCapture(){
+  cancelActiveCapture();
+  releaseMic();
+}
+
+/* --- Judge + tally (the AI's transcription decides right/wrong) --- */
+function judgeReading(transcript){
+  finishJudge(readingMatch(READING_SENTENCES[READ.i], transcript), transcript);
+}
+function judgeReadingAlts(alts){
+  var target = READING_SENTENCES[READ.i];
+  var ok = alts.some(function(t){ return readingMatch(target, t); });
+  finishJudge(ok, alts[0] || '');
+}
+function finishJudge(ok, transcript){
+  $('readThinking').setAttribute('hidden','');
+  $('readListening').setAttribute('hidden','');
+  READ.state = 'done';
+  if(ok){ READ.score++; updateReadScore(); }
+  $('readResult').innerHTML =
+    '<div class="result ' + (ok ? 'pass' : 'fail') + '">' +
+      '<div class="rtitle">' + (ok ? '✓ Sounds good!' : 'Not quite — give it another try') + '</div>' +
+      (transcript ? '<div class="heard">We heard: “' + escapeHtml(transcript) + '”</div>'
+                  : '<div class="heard">We did not hear any words.</div>') +
+      (ok ? '' : '<div class="heard">Read slowly and clearly — small mistakes are okay.</div>') +
+    '</div>';
+  $('readMicBtn').style.display = 'none';
+  $('readActions').removeAttribute('hidden');
+  if(ok) celebrate();
+}
+function readRetry(){ renderReading(); }
+function readNext(){ READ.i++; if(READ.i >= READ.n){ finishReading(); } else { renderReading(); } }
+function finishReading(){
+  $('readFill').style.width = '100%';
+  stopReadingCapture();   // release the microphone when the session ends
+  finishMode({ emoji:'📖', title:'Reading practice done!',
+    scoreText:'You read ' + READ.score + ' of ' + READ.n + ' correctly.',
+    msg:'On the real test you only need to read 1 of 3 correctly. Keep the word list handy and you are ready.',
+    again:startReading });
+}
+
+/* ===================== WRITING ===================== */
+var WRITE = { i:0, n:0, busy:false };
+function getKey(){
+  var k = '';
+  try{ k = (localStorage.getItem('cp_oai_key') || '').trim(); }catch(e){}
+  return k || (window.OPENAI_API_KEY ? String(window.OPENAI_API_KEY).trim() : '');
+}
+function getModel(){
+  var hi = false;
+  try{ hi = localStorage.getItem('cp_oai_model') === 'hi'; }catch(e){}
+  return hi ? 'gpt-4o' : 'gpt-4o-mini';
+}
+function startWriting(){
+  lastFinish = startWriting;
+  WRITE.i = 0; WRITE.n = WRITING_SENTENCES.length;
+  $('writeWords').innerHTML = wordListHtml(WRITING_WORDS);
+  show('writing');
+  renderWriting();
+}
+function renderWriting(){
+  stopAllSpeech();
+  WRITE.busy = false;
+  $('writeCount').textContent = (WRITE.i + 1) + ' of ' + WRITE.n;
+  $('writeFill').style.width = Math.round((WRITE.i / WRITE.n) * 100) + '%';
+  $('writePreview').setAttribute('hidden',''); $('writePreview').innerHTML = '';
+  $('writeThinking').setAttribute('hidden','');
+  $('writeResult').innerHTML = '';
+  $('writeActions').setAttribute('hidden','');
+  $('writeShowBtn').style.display = '';
+  $('writePhoto').value = '';
+  if(getKey()){
+    $('writePhotoBtn').style.display = '';
+    $('writeHelp').innerHTML = 'Press <b>Hear the sentence</b>, write it on paper, then take a photo to check it.';
+  } else {
+    $('writePhotoBtn').style.display = 'none';
+    $('writeHelp').innerHTML = 'Press <b>Hear the sentence</b> and write it on paper. Then tap <b>Show me the sentence</b> to check yourself. <br>(Add an OpenAI key in ⚙️ Settings to grade photos automatically.)';
+  }
+  if(canSpeak){ setTimeout(function(){ if($('writing').classList.contains('active')) writeHear(); }, 350); }
+  else { $('writeHelp').innerHTML = 'Write this sentence on paper, then check it:<br><b>' + escapeHtml(WRITING_SENTENCES[WRITE.i]) + '</b>'; }
+}
+function writeHear(){ speakText(WRITING_SENTENCES[WRITE.i], 0.8); }
+function writeShow(){
+  var s = WRITING_SENTENCES[WRITE.i];
+  $('writeResult').innerHTML =
+    '<div class="result"><div class="rtitle" style="color:var(--anslabel)">The sentence was:</div>' +
+    '<div class="correct">' + escapeHtml(s) + '</div></div>';
+  $('writeActions').removeAttribute('hidden');
+}
+function writePick(){ $('writePhoto').click(); }
+function onWritePhoto(e){
+  var file = e.target.files && e.target.files[0];
+  if(!file) return;
+  compressImage(file, function(dataUrl){
+    $('writePreview').innerHTML = '<img src="' + dataUrl + '" alt="your handwriting">';
+    $('writePreview').removeAttribute('hidden');
+    gradeWriting(dataUrl);
+  });
+}
+function compressImage(file, cb){
+  var rd = new FileReader();
+  rd.onload = function(){
+    var img = new Image();
+    img.onload = function(){
+      var max = 1024, w = img.width, h = img.height;
+      if(w > h && w > max){ h = Math.round(h * max / w); w = max; }
+      else if(h >= w && h > max){ w = Math.round(w * max / h); h = max; }
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      try{ cb(c.toDataURL('image/jpeg', 0.82)); }catch(err){ cb(rd.result); }
+    };
+    img.onerror = function(){ cb(rd.result); };
+    img.src = rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+function gradeWriting(dataUrl){
+  var key = getKey();
+  if(!key){ writeShow(); return; }
+  if(WRITE.busy) return; WRITE.busy = true;
+  $('writeThinking').removeAttribute('hidden');
+  $('writeResult').innerHTML = '';
+  var target = WRITING_SENTENCES[WRITE.i];
+  var body = {
+    model: getModel(), temperature: 0, max_tokens: 300,
+    response_format: { type: 'json_object' },
+    messages: [
+      { role:'system', content:'You grade the USCIS naturalization WRITING test. The applicant heard a sentence and wrote it by hand; a photo of the handwriting is provided. Grade leniently like a real USCIS officer: spelling, capitalization, and punctuation mistakes are OK as long as the meaning is clear; numbers may be words or digits. Reply ONLY as compact JSON: {"transcription": string, "pass": boolean, "note": string}. transcription = your best reading of the handwriting. pass = true if it acceptably matches the target sentence. note = one short, warm sentence of feedback for an older adult learner.' },
+      { role:'user', content: [
+        { type:'text', text:'Target sentence: "' + target + '". Read the handwriting in this photo and grade it.' },
+        { type:'image_url', image_url: { url: dataUrl } }
+      ]}
+    ]
+  };
+  fetch('https://api.openai.com/v1/chat/completions', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + key },
+    body: JSON.stringify(body)
+  }).then(function(resp){
+    $('writeThinking').setAttribute('hidden','');
+    if(!resp.ok){
+      var msg = resp.status === 401 ? 'That API key did not work. Please check it in ⚙️ Settings.'
+        : resp.status === 429 ? 'OpenAI is busy or the account is out of credit. Please try again soon.'
+        : 'Could not reach OpenAI (error ' + resp.status + '). You can self-check instead.';
+      writeError(msg); WRITE.busy = false; return;
+    }
+    resp.json().then(function(data){
+      var out = {};
+      try{ out = JSON.parse(data.choices[0].message.content); }catch(e){ out = {}; }
+      showWriteResult(!!out.pass, out.transcription || '', out.note || '', target);
+      WRITE.busy = false;
+    });
+  }).catch(function(){
+    $('writeThinking').setAttribute('hidden','');
+    writeError('No internet connection, or the request was blocked. You can self-check instead.');
+    WRITE.busy = false;
+  });
+}
+function writeError(msg){
+  $('writeResult').innerHTML =
+    '<div class="result fail"><div class="rtitle">Hmm —</div><div class="heard">' + escapeHtml(msg) + '</div></div>';
+  $('writeActions').removeAttribute('hidden');
+}
+function showWriteResult(ok, heard, note, target){
+  $('writeResult').innerHTML =
+    '<div class="result ' + (ok ? 'pass' : 'fail') + '">' +
+      '<div class="rtitle">' + (ok ? '✓ Nicely done!' : 'Almost — keep practicing') + '</div>' +
+      (note ? '<div class="heard">' + escapeHtml(note) + '</div>' : '') +
+      (heard ? '<div class="heard">We read: “' + escapeHtml(heard) + '”</div>' : '') +
+      '<div class="correct">Correct: ' + escapeHtml(target) + '</div>' +
+    '</div>';
+  $('writeActions').removeAttribute('hidden');
+  if(ok) celebrate();
+}
+function writeGot(){ celebrate(); writeNext(); }
+function writeRetry(){ renderWriting(); }
+function writeNext(){ WRITE.i++; if(WRITE.i >= WRITE.n){ finishWriting(); } else { renderWriting(); } }
+function finishWriting(){
+  $('writeFill').style.width = '100%';
+  finishMode({ emoji:'✍️', title:'Writing practice done!',
+    scoreText:'You went through all ' + WRITE.n + ' sentences.',
+    msg:'On the real test you only need to write 1 of 3 correctly. Spelling slips are okay if the meaning is clear.',
+    again:startWriting });
+}
+
+/* ===================== SPEAKING ===================== */
+var SPEAK = { i:0, n:0 };
+function startSpeaking(){
+  lastFinish = startSpeaking;
+  SPEAK.i = 0; SPEAK.n = SPEAKING_QUESTIONS.length;
+  show('speaking');
+  renderSpeaking();
+}
+function renderSpeaking(){
+  stopAllSpeech();
+  var q = SPEAKING_QUESTIONS[SPEAK.i];
+  $('speakQuestion').textContent = q;
+  $('speakCount').textContent = (SPEAK.i + 1) + ' of ' + SPEAK.n;
+  $('speakFill').style.width = Math.round((SPEAK.i / SPEAK.n) * 100) + '%';
+  if(canSpeak){ setTimeout(function(){ if($('speaking').classList.contains('active')) speakHear(); }, 350); }
+}
+function speakHear(){ speakText(SPEAKING_QUESTIONS[SPEAK.i], 0.9); }
+function speakGot(){ celebrate(); speakNext(); }
+function speakPractice(){ toast('Take your time — say it again 🙂'); speakHear(); }
+function speakNext(){ SPEAK.i++; if(SPEAK.i >= SPEAK.n){ finishSpeaking(); } else { renderSpeaking(); } }
+function finishSpeaking(){
+  $('speakFill').style.width = '100%';
+  finishMode({ emoji:'🗣️', title:'Speaking practice done!',
+    scoreText:'You practiced all ' + SPEAK.n + ' questions.',
+    msg:'There is no separate speaking test — the officer just listens during your interview. Practicing your own answers out loud is the best preparation.',
+    again:startSpeaking });
+}
+
+/* ===================== SETTINGS ===================== */
+function openSettings(){
+  var k = '';
+  try{ k = localStorage.getItem('cp_oai_key') || ''; }catch(e){}
+  $('keyInput').value = k;
+  try{ $('modelToggle').checked = localStorage.getItem('cp_oai_model') === 'hi'; }catch(e){}
+  updateKeyStatus();
+  $('settings').removeAttribute('hidden');
+}
+function closeSettings(){ $('settings').setAttribute('hidden',''); }
+function updateKeyStatus(){
+  var has = !!getKey();
+  var el = $('keyStatus');
+  el.textContent = has ? '✓ API key saved on this device' : 'No API key saved yet';
+  el.className = 'keystatus ' + (has ? 'on' : 'off');
+}
+function saveKey(){
+  try{
+    localStorage.setItem('cp_oai_key', $('keyInput').value.trim());
+    localStorage.setItem('cp_oai_model', $('modelToggle').checked ? 'hi' : 'lo');
+  }catch(e){ toast('Could not save in this browser'); return; }
+  updateKeyStatus();
+  toast('Saved 👍');
+  closeSettings();
+}
+function clearKey(){
+  try{ localStorage.removeItem('cp_oai_key'); }catch(e){}
+  $('keyInput').value = '';
+  updateKeyStatus();
+  toast('Key cleared');
+}
+
 /* ===== Wire up ===== */
-if(!canSpeak){ $('speakBtn').style.display = 'none'; }
+if(!canSpeak){
+  $('speakBtn').style.display = 'none';
+  ['writeHearBtn','speakHearBtn'].forEach(function(id){ var e = $(id); if(e) e.style.display = 'none'; });
+}
 
-$('startBtn').addEventListener('click', startQuiz);
-$('againAllBtn').addEventListener('click', startQuiz);
+/* Menu */
+$('civicsBtn').addEventListener('click', startQuiz);
+$('readingBtn').addEventListener('click', startReading);
+$('writingBtn').addEventListener('click', startWriting);
+$('speakingBtn').addEventListener('click', startSpeaking);
+$('settingsBtn').addEventListener('click', openSettings);
 
+/* Back-to-menu buttons */
+$('civicsMenuBtn').addEventListener('click', goMenu);
+$('doneMenuBtn').addEventListener('click', goMenu);
+var menuBtns = document.querySelectorAll('[data-menu]');
+for(var mb=0; mb<menuBtns.length; mb++){ menuBtns[mb].addEventListener('click', goMenu); }
+
+/* Civics quiz */
+$('againAllBtn').addEventListener('click', function(){ lastFinish(); });
 $('card').addEventListener('click', function(){ if(!revealed) reveal(); });
 $('showBtn').addEventListener('click', function(e){ e.stopPropagation(); reveal(); });
 $('speakBtn').addEventListener('click', function(e){ e.stopPropagation(); speakCurrent(); });
-
 $('rightBtn').addEventListener('click', markRight);
 $('wrongBtn').addEventListener('click', markWrong);
 $('againBtn').addEventListener('click', tryAgain);
-
 $('restartBtn').addEventListener('click', openModal);
 $('modalNo').addEventListener('click', closeModal);
 $('modalYes').addEventListener('click', function(){ closeModal(); startQuiz(); });
 $('modal').addEventListener('click', function(e){ if(e.target === $('modal')) closeModal(); });
+
+/* Reading */
+$('readMicBtn').addEventListener('click', readMicClick);
+$('readRetryBtn').addEventListener('click', readRetry);
+$('readNextBtn').addEventListener('click', readNext);
+
+/* Writing */
+$('writeHearBtn').addEventListener('click', writeHear);
+$('writePhotoBtn').addEventListener('click', writePick);
+$('writePhoto').addEventListener('change', onWritePhoto);
+$('writeShowBtn').addEventListener('click', writeShow);
+$('writeGotBtn').addEventListener('click', writeGot);
+$('writeRetryBtn').addEventListener('click', writeRetry);
+$('writeNextBtn').addEventListener('click', writeNext);
+
+/* Speaking */
+$('speakHearBtn').addEventListener('click', speakHear);
+$('speakGotBtn').addEventListener('click', speakGot);
+$('speakPracticeBtn').addEventListener('click', speakPractice);
+$('speakNextBtn').addEventListener('click', speakNext);
+
+/* Settings */
+$('keySave').addEventListener('click', saveKey);
+$('keyClear').addEventListener('click', clearKey);
+$('settingsClose').addEventListener('click', closeSettings);
+$('keyLink').addEventListener('click', function(){ window.open('https://platform.openai.com/api-keys', '_blank', 'noopener'); });
+$('settings').addEventListener('click', function(e){ if(e.target === $('settings')) closeSettings(); });
 </script>
 </body>
 </html>
