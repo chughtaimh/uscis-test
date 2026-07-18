@@ -391,7 +391,7 @@
         <button id="padUndo" class="toolbtn">↩ Undo</button>
         <button id="padClear" class="toolbtn">🗑 Start again</button>
       </div>
-      <div id="writeListening" class="listening" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Listening — ask your question now</div>
+      <div id="writeListening" class="listening" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Listening — ask now; it stops by itself when you finish</div>
       <div id="writeAskNote" class="help" hidden></div>
       <div id="writeThinking" class="thinking" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Grading your writing…</div>
       <div id="writeResult"></div>
@@ -1245,7 +1245,65 @@ function wtSpeakRepeat(){
    understandable request ("Could you repeat the sentence, please?"). The AI decides
    whether it understood a request to repeat; if it didn't, nothing is repeated and
    he is coached to ask again — exactly the skill he needs at the interview. */
-var WTASK = { state:'idle', recorder:null, chunks:[], timer:null, recognizer:null, honor:false };
+var WTASK = { state:'idle', recorder:null, chunks:[], timer:null, recognizer:null, honor:false,
+              audioCtx:null, source:null, srcStream:null, analyser:null, monitor:null, vad:null };
+/* Voice-activity detection for auto-stop: once he has actually spoken (a couple of
+   voiced frames), 1 second of silence ends the recording by itself. Nothing fires
+   before he speaks, so a slow start never gets cut off. */
+var WT_VAD_THRESH = 0.015, WT_VAD_SILENCE_MS = 1000;
+function wtAskVadReset(){ WTASK.vad = { spoke:false, voiceFrames:0, silenceStart:0 }; }
+function wtAskVadTick(rms, now){
+  var v = WTASK.vad;
+  if(!v) return false;
+  if(rms > WT_VAD_THRESH){
+    v.voiceFrames++;
+    if(v.voiceFrames >= 2) v.spoke = true;
+    v.silenceStart = 0;
+  } else {
+    v.voiceFrames = 0;
+    if(v.spoke){
+      if(!v.silenceStart){ v.silenceStart = now; }
+      else if(now - v.silenceStart >= WT_VAD_SILENCE_MS){ return true; }   // stop now
+    }
+  }
+  return false;
+}
+function wtAskMonitorStart(stream){
+  try{
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;                                   // no WebAudio: manual stop still works
+    if(!WTASK.audioCtx){ WTASK.audioCtx = new AC(); }
+    if(WTASK.audioCtx.state === 'suspended'){ try{ WTASK.audioCtx.resume(); }catch(e){} }
+    if(WTASK.srcStream !== stream){
+      WTASK.source = WTASK.audioCtx.createMediaStreamSource(stream);
+      WTASK.srcStream = stream;
+    }
+    var analyser = WTASK.audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    WTASK.source.connect(analyser);
+    WTASK.analyser = analyser;
+    var data = new Uint8Array(analyser.fftSize);
+    wtAskVadReset();
+    WTASK.monitor = setInterval(function(){
+      if(WTASK.state !== 'recording'){ wtAskMonitorStop(); return; }
+      analyser.getByteTimeDomainData(data);
+      var sum = 0, n = 0;
+      for(var i = 0; i < data.length; i += 4){ var s = (data[i] - 128) / 128; sum += s * s; n++; }
+      if(wtAskVadTick(Math.sqrt(sum / n), Date.now())){
+        wtAskMonitorStop();
+        wtAskStop();
+      }
+    }, 100);
+  }catch(e){}
+}
+function wtAskMonitorStop(){
+  if(WTASK.monitor){ clearInterval(WTASK.monitor); WTASK.monitor = null; }
+  if(WTASK.analyser){
+    try{ WTASK.source.disconnect(WTASK.analyser); }catch(e){}
+    WTASK.analyser = null;
+  }
+  WTASK.vad = null;
+}
 var WT_ASK_JUDGE =
   'You play the USCIS officer in a practice test. The student pressed a microphone button and spoke. ' +
   'Decide whether what they said is a comprehensible spoken request, in English, to repeat the dictated sentence. ' +
@@ -1309,6 +1367,7 @@ function wtAskWhisper(){
     WTASK.state = 'recording';
     wtAskUi('recording');
     WTASK.recorder.start();
+    wtAskMonitorStart(stream);          // auto-stop 1s after he finishes speaking
     clearTimeout(WTASK.timer);
     WTASK.timer = setTimeout(function(){ if(WTASK.state === 'recording') wtAskStop(); }, 8000);
   }).catch(function(err){
@@ -1369,6 +1428,7 @@ function wtAskStt(){
 }
 function wtAskStop(){
   clearTimeout(WTASK.timer);
+  wtAskMonitorStop();
   if(WTASK.recorder && WTASK.state === 'recording'){
     try{ WTASK.recorder.stop(); }catch(e){ WTASK.state = 'idle'; wtAskUi('idle'); }
   } else if(WTASK.recognizer && WTASK.state === 'recording'){
@@ -1378,6 +1438,7 @@ function wtAskStop(){
 }
 function wtAskCancel(){
   clearTimeout(WTASK.timer);
+  wtAskMonitorStop();
   if(WTASK.recognizer){ try{ WTASK.recognizer.onend = null; WTASK.recognizer.abort(); }catch(e){} WTASK.recognizer = null; }
   if(WTASK.recorder){ try{ WTASK.recorder.onstop = null; if(WTASK.recorder.state !== 'inactive') WTASK.recorder.stop(); }catch(e){} WTASK.recorder = null; }
   WTASK.chunks = []; WTASK.state = 'idle'; WTASK.honor = false;
