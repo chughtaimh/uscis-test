@@ -189,10 +189,29 @@
   .result .heard{ font-weight:700; font-size:15px; margin-top:8px; color:var(--ink-soft); line-height:1.45; }
   .result .correct{ font-weight:800; font-size:18px; margin-top:8px; color:var(--ansink); }
 
-  /* photo upload */
-  .photo-input{ display:none; }
-  .photo-preview{ margin-top:16px; text-align:center; }
-  .photo-preview img{ max-width:100%; max-height:240px; border-radius:16px; box-shadow:var(--shadow-sm); }
+  /* ---------- Notepad writing test ---------- */
+  .padbadge{ display:inline-block; font-size:14px; font-weight:800; color:var(--ink-soft); background:var(--bg2); border-radius:999px; padding:6px 14px; margin-bottom:10px; }
+  .notepad{ position:relative; width:100%; height:320px; border-radius:18px; background:#fffdf8; box-shadow:inset 0 2px 8px rgba(140,100,60,.16); overflow:hidden; }
+  .notepad.lined{ background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 62px, #dcc9ae 62px, #dcc9ae 64px); background-position:0 22px; }
+  .notepad canvas{ position:absolute; inset:0; width:100%; height:100%; touch-action:none; cursor:crosshair; }
+  .notepad.locked canvas{ pointer-events:none; }
+  .padtools{ display:flex; gap:10px; margin-top:12px; }
+  .toolbtn{ flex:1; border:none; cursor:pointer; font-family:inherit; font-weight:800; font-size:17px; padding:13px 10px; border-radius:14px; background:#fff; color:var(--neutral-ink); box-shadow:var(--shadow-sm); }
+  .toolbtn:active{ transform:translateY(1px); }
+  .toolbtn:disabled{ opacity:.45; cursor:default; }
+  .skiplink{ display:block; margin:14px auto 0; background:none; border:none; cursor:pointer; font-family:inherit; font-size:15px; font-weight:800; color:var(--ink-soft); text-decoration:underline; }
+  .errlist{ margin:10px 0 0; padding-left:22px; text-align:left; font-weight:700; font-size:15px; color:#a4452f; line-height:1.5; }
+  .subverdict{ margin-top:12px; border-radius:12px; padding:11px 13px; font-weight:800; font-size:15px; line-height:1.4; text-align:left; }
+  .subverdict.pass{ background:#e3f6ec; color:#1f6b46; }
+  .subverdict.warn{ background:#fff3d6; color:#8a6d1f; }
+  .reviewlist{ text-align:left; margin:18px auto 0; max-width:470px; display:flex; flex-direction:column; gap:12px; }
+  .reviewhead{ font-weight:800; font-size:17px; color:var(--ink); margin-top:6px; }
+  .reviewitem{ background:#fff; border-radius:16px; padding:14px 16px; box-shadow:var(--shadow-sm); }
+  .reviewitem .rv-target{ font-weight:800; font-size:16px; color:var(--ink); line-height:1.4; }
+  .reviewitem .rv-note{ font-weight:700; font-size:14px; color:#a4452f; margin-top:4px; line-height:1.45; }
+  .reviewitem .rv-note.ok{ color:#1f6b46; }
+  .wtpct{ font-size:clamp(44px,11vw,60px); font-weight:800; line-height:1; margin:4px 0 2px; }
+  .wtpct.pass{ color:var(--green-d); } .wtpct.fail{ color:#ef8470; }
 
   /* word list reference */
   .wordlist{ margin-top:16px; background:var(--bg2); border-radius:16px; padding:4px 18px; box-shadow:var(--shadow-sm); }
@@ -259,7 +278,7 @@
         <span class="mi writing">✍️</span>
         <span class="mwrap">
           <span class="mt">Writing</span>
-          <span class="md">Listen, then write the sentence</span>
+          <span class="md">A real 20-sentence test — write right on the screen</span>
         </span>
         <span class="marrow">›</span>
       </button>
@@ -353,41 +372,62 @@
     </details>
   </section>
 
-  <!-- WRITING -->
+  <!-- WRITING (notepad test) -->
   <section id="writing" class="screen">
     <div class="modetop">
       <button class="backbtn" data-menu>← Menu</button>
-      <span id="writeCount" class="mtcount">1 of 12</span>
+      <span id="writeCount" class="mtcount">1 of 20</span>
+      <span id="writeScore" class="mtscore">⭐ 0</span>
     </div>
     <div class="progresstrack"><div id="writeFill" class="progressfill"></div></div>
     <div class="gap"></div>
 
     <div class="panel">
-      <div class="panel-label">✍️ Listen, then write it</div>
-      <div class="dictation-ph">🔊</div>
-      <div id="writeHelp" class="help">Press <b>Hear the sentence</b>, write it on paper, then take a photo.</div>
-      <div id="writePreview" class="photo-preview" hidden></div>
-      <div id="writeThinking" class="thinking" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Checking your writing…</div>
+      <div class="panel-label">✍️ Listen, then write it below</div>
+      <div class="center"><span id="padBadge" class="padbadge">📄 Lined paper this time</span></div>
+      <div id="writeHelp" class="help" style="margin:0 0 12px;">Listen to the whole sentence first, then write it.</div>
+      <div id="notepad" class="notepad lined"><canvas id="padCanvas"></canvas></div>
+      <div class="padtools">
+        <button id="padUndo" class="toolbtn">↩ Undo</button>
+        <button id="padClear" class="toolbtn">🗑 Start again</button>
+      </div>
+      <div id="writeListening" class="listening" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Listening — ask your question now</div>
+      <div id="writeAskNote" class="help" hidden></div>
+      <div id="writeThinking" class="thinking" hidden><span class="dot"></span><span class="dot"></span><span class="dot"></span> Grading your writing…</div>
       <div id="writeResult"></div>
     </div>
 
     <div class="gap"></div>
-    <button id="writeHearBtn" class="bigbtn hear">🔊 Hear the sentence</button>
+    <button id="writeRepeatBtn" class="bigbtn mic">🎤 Ask to repeat that</button>
     <div class="gap"></div>
-    <input id="writePhoto" class="photo-input" type="file" accept="image/*" capture="environment">
-    <button id="writePhotoBtn" class="bigbtn mic">📷 Take a photo of what you wrote</button>
-    <button id="writeShowBtn" class="bigbtn show">Show me the sentence</button>
+    <button id="writeGradeBtn" class="bigbtn right">✅ I’m done — grade it</button>
 
+    <div id="writeSelfGrade" class="actions" hidden>
+      <button id="selfPassBtn" class="bigbtn right">✓ Every word matches exactly</button>
+      <button id="selfFailBtn" class="bigbtn wrong">✗ Something is different</button>
+    </div>
     <div id="writeActions" class="actions" hidden>
-      <button id="writeGotBtn" class="bigbtn right">✓ I wrote it correctly</button>
-      <button id="writeRetryBtn" class="bigbtn again">↻ Try again</button>
       <button id="writeNextBtn" class="bigbtn show">Next sentence →</button>
     </div>
+    <button id="writeSkipBtn" class="skiplink">Skip this sentence (counts as a miss)</button>
 
     <details class="wordlist">
       <summary>See the writing word list</summary>
       <div id="writeWords"></div>
     </details>
+  </section>
+
+  <!-- WRITTEN TEST RESULTS -->
+  <section id="wtdone" class="screen center">
+    <div id="wtEmoji" class="emblem">🏅</div>
+    <h1 id="wtTitle" class="title">Test complete!</h1>
+    <div id="wtPct" class="wtpct pass">0%</div>
+    <p id="wtScoreLine" class="bigscore"></p>
+    <p id="wtMsg" class="lead"></p>
+    <div id="wtReview" class="reviewlist"></div>
+    <div class="gap"></div>
+    <button id="wtAgainBtn" class="bigbtn start">Take another test</button>
+    <button id="wtMenuBtn" class="bigbtn menu" style="max-width:340px;margin:12px auto 0;">← Back to menu</button>
   </section>
 
   <!-- SPEAKING -->
@@ -472,7 +512,7 @@ var $ = function(id){ return document.getElementById(id); };
 
 /* ===== Screens ===== */
 function show(name){
-  ['start','quiz','reading','writing','speaking','done'].forEach(function(s){ $(s).classList.toggle('active', s===name); });
+  ['start','quiz','reading','writing','speaking','done','wtdone'].forEach(function(s){ $(s).classList.toggle('active', s===name); });
 }
 
 /* ===== Shuffle ===== */
@@ -711,19 +751,113 @@ var READING_SENTENCES = [
   "We have one country.",
   "The President lives in the White House."
 ];
-var WRITING_SENTENCES = [
-  "Citizens can vote.",
-  "The flag is red, white, and blue.",
-  "Washington is the capital.",
-  "Lincoln was President during the Civil War.",
-  "People pay taxes.",
-  "Memorial Day is in May.",
-  "Independence Day is in July.",
-  "We have freedom of speech.",
-  "Alaska is the largest state.",
-  "The President lives in the White House.",
-  "Citizens have the right to vote.",
-  "Washington was the first President."
+/* Writing test sentence bank.
+   Built from the official USCIS writing vocabulary (M-1178) plus sentences reported
+   verbatim from real interviews. star:1 = frequently reported on real tests; each
+   20-sentence practice test draws about two-thirds of its sentences from those. */
+var WT_BANK = [
+  {t:"Washington was the first President.", star:1},
+  {t:"Adams was the second President.", star:1},
+  {t:"Lincoln was President.", star:1},
+  {t:"Lincoln was the President during the Civil War.", star:1},
+  {t:"The President lives in the White House.", star:1},
+  {t:"The President lives in Washington, D.C.", star:1},
+  {t:"We vote for the President in November.", star:1},
+  {t:"Congress meets in Washington, D.C.", star:1},
+  {t:"The people elect Congress.", star:1},
+  {t:"Citizens elect Congress.", star:1},
+  {t:"Congress has one hundred Senators.", star:1},
+  {t:"We have one hundred Senators.", star:1},
+  {t:"The White House is in Washington, D.C.", star:1},
+  {t:"Citizens can vote.", star:1},
+  {t:"Citizens have the right to vote.", star:1},
+  {t:"We pay taxes.", star:1},
+  {t:"We have to pay taxes.", star:1},
+  {t:"People want freedom of speech.", star:1},
+  {t:"The United States has fifty states.", star:1},
+  {t:"California has the most people.", star:1},
+  {t:"Alaska is the largest state.", star:1},
+  {t:"Delaware was the first state.", star:1},
+  {t:"New York City is the largest city.", star:1},
+  {t:"New York City has the most people.", star:1},
+  {t:"New York City was the first capital.", star:1},
+  {t:"New York City has the largest population.", star:1},
+  {t:"California has the largest population in the United States.", star:1},
+  {t:"Canada is north of the United States.", star:1},
+  {t:"Mexico is south of the United States.", star:1},
+  {t:"Mexico is to the south of the United States.", star:1},
+  {t:"Washington, D.C. is the capital.", star:1},
+  {t:"Washington, D.C. is the capital of the United States.", star:1},
+  {t:"The flag is red, white, and blue.", star:1},
+  {t:"The American flag is red, white, and blue.", star:1},
+  {t:"Flag Day is in June.", star:1},
+  {t:"Presidents' Day is in February.", star:1},
+  {t:"Memorial Day is in May.", star:1},
+  {t:"Independence Day is in July.", star:1},
+  {t:"Labor Day is in September.", star:1},
+  {t:"Columbus Day is in October.", star:1},
+  {t:"Thanksgiving is in November.", star:1},
+  {t:"American Indians lived here first.", star:1},
+  {t:"Washington is the Father of Our Country.", star:0},
+  {t:"Washington was the first President of the United States.", star:0},
+  {t:"Washington lived in the United States.", star:0},
+  {t:"Adams was President.", star:0},
+  {t:"The President works in the White House.", star:0},
+  {t:"The President of the United States lives in the White House.", star:0},
+  {t:"The President is elected in November.", star:0},
+  {t:"We elect the President.", star:0},
+  {t:"The people vote for the President.", star:0},
+  {t:"The people vote for the President in November.", star:0},
+  {t:"Citizens vote for the President in November.", star:0},
+  {t:"The people elect the President in November.", star:0},
+  {t:"We, the people, elect Congress.", star:0},
+  {t:"We elect Congress in November.", star:0},
+  {t:"Each state has two Senators.", star:0},
+  {t:"The state has two Senators.", star:0},
+  {t:"The people elect Senators.", star:0},
+  {t:"Senators meet in Washington, D.C.", star:0},
+  {t:"Congress is in Washington, D.C.", star:0},
+  {t:"Congress meets in the capital.", star:0},
+  {t:"The United States has one hundred Senators.", star:0},
+  {t:"Citizens vote in November.", star:0},
+  {t:"Citizens pay taxes.", star:0},
+  {t:"People have to pay taxes.", star:0},
+  {t:"We pay taxes in the United States.", star:0},
+  {t:"People want to be free.", star:0},
+  {t:"People want to vote.", star:0},
+  {t:"People want to be free in the United States.", star:0},
+  {t:"Freedom of speech is a right.", star:0},
+  {t:"Freedom of speech is one right.", star:0},
+  {t:"Freedom of speech is a right of the people.", star:0},
+  {t:"The people have freedom of speech.", star:0},
+  {t:"Citizens have freedom of speech.", star:0},
+  {t:"People come to the United States to be free.", star:0},
+  {t:"People come here to be free.", star:0},
+  {t:"People come to the United States.", star:0},
+  {t:"People come here for freedom of speech.", star:0},
+  {t:"The United States is one country.", star:0},
+  {t:"The United States is a free country.", star:0},
+  {t:"America has fifty states.", star:0},
+  {t:"California is a state.", star:0},
+  {t:"Delaware is a state.", star:0},
+  {t:"Delaware was the first state in the United States.", star:0},
+  {t:"Alaska is north of Canada.", star:0},
+  {t:"Alaska is the largest state in the United States.", star:0},
+  {t:"California has the most people in the United States.", star:0},
+  {t:"New York City is in New York.", star:0},
+  {t:"New York City is in the United States.", star:0},
+  {t:"New York City is the largest city in the United States.", star:0},
+  {t:"New York City has the most people in the United States.", star:0},
+  {t:"Canada is to the north of the United States.", star:0},
+  {t:"The capital is Washington, D.C.", star:0},
+  {t:"The capital of the United States is Washington, D.C.", star:0},
+  {t:"The flag of the United States is red, white, and blue.", star:0},
+  {t:"The American flag has red, white, and blue.", star:0},
+  {t:"We have a flag.", star:0},
+  {t:"Washington is on the dollar bill.", star:0},
+  {t:"We have a one dollar bill.", star:0},
+  {t:"The Civil War was in the United States.", star:0},
+  {t:"The government is in Washington, D.C.", star:0}
 ];
 var SPEAKING_QUESTIONS = [
   "What is your full name?",
@@ -786,6 +920,7 @@ function speakText(text, rate){
 }
 function goMenu(){
   stopReadingCapture();
+  if(typeof wtAskCancel === 'function'){ wtAskCancel(); }
   stopAllSpeech();
   show('start');
 }
@@ -1046,8 +1181,14 @@ function finishReading(){
     again:startReading });
 }
 
-/* ===================== WRITING ===================== */
-var WRITE = { i:0, n:0, busy:false };
+/* ===================== WRITING — the 20-sentence notepad test ===================== */
+/* Simulates the real USCIS tablet: the sentence is dictated aloud (never shown while
+   writing), the student handwrites it on the canvas below, and an AI grader marks it
+   like a strict examiner. Passing the practice test needs 70% — far harsher than the
+   real test's 1-of-3 — so a pass here means genuine readiness. */
+var WT_PER_TEST = 20, WT_STAR_SHARE = 13, WT_PASS_PCT = 70;
+var WT = { list:[], i:0, results:[], busy:false, graded:false, repeats:0 };
+
 function getKey(){
   var k = '';
   try{ k = (localStorage.getItem('cp_oai_key') || '').trim(); }catch(e){}
@@ -1058,136 +1199,582 @@ function getModel(){
   try{ hi = localStorage.getItem('cp_oai_model') === 'hi'; }catch(e){}
   return hi ? 'gpt-4o' : 'gpt-4o-mini';
 }
+
+var WT_RUBRIC =
+  'You grade a PRACTICE run of the USCIS naturalization writing test in strict "tough grader" mode. ' +
+  'The student (an older adult) heard the target sentence read aloud and wrote it by hand on a tablet; you receive the handwriting as an image. ' +
+  'Step 1 — transcribe the handwriting EXACTLY as written. Keep every misspelling; never autocorrect. If blank or truly unreadable, transcription is an empty string. ' +
+  'Step 2 — tough grade (tough_pass): true ONLY if every word of the target appears in the same order, written out in full and spelled correctly — no missing words (not even "the"), no added words, no substituted words (writing "is" instead of "has" fails), no abbreviations ("US" for "United States" fails). ' +
+  'CRITICAL: capitalization is NEVER an error, even in tough mode. "president" = "President", "washington" = "Washington", "february" = "February" — identical letters in a different case are a PERFECT match. Never fail for capitalization and never mention it in errors. The same goes for punctuation: missing or extra commas, periods, hyphens, and apostrophes are NEVER errors. A punctuation mark is not a word — never report a missing comma or period as a "missing word". "Washington, D.C." = "Washington D.C." = "Washington DC" = "washington dc" — all perfect matches. "Presidents\' Day" = "Presidents Day". ' +
+  'Numbers may be digits or words ("50" = "fifty", "100" = "one hundred") — both are correct. A single clearly misspelled word (wrong or missing LETTERS, not wrong case) makes tough_pass false. Shaky or sloppy handwriting is fine as long as the letters are recognizable. ' +
+  'Step 3 — official grade (uscis_pass): would a real USCIS officer accept it under the lenient official standard? There, spelling, capitalization, and punctuation errors are acceptable unless they change the meaning; short function words may be omitted if the meaning is unchanged; abbreviations, a different sentence, or illegible writing still fail. ' +
+  'Reply ONLY with compact JSON: {"transcription": string, "tough_pass": boolean, "uscis_pass": boolean, "errors": string[], "note": string}. ' +
+  'errors = every mismatch in plain words, for example ["wrote \\"is\\" instead of \\"has\\"", "missing word \\"the\\"", "spelled \\"Febuary\\" — should be \\"February\\""]; empty array if perfect. ' +
+  'note = one short, warm, specific coaching sentence for an older adult learner. Never mention that you are an AI.';
+
 function startWriting(){
   lastFinish = startWriting;
-  WRITE.i = 0; WRITE.n = WRITING_SENTENCES.length;
+  var starred = [], rest = [];
+  for(var i = 0; i < WT_BANK.length; i++){ (WT_BANK[i].star ? starred : rest).push(WT_BANK[i].t); }
+  shuffle(starred); shuffle(rest);
+  var pick = starred.slice(0, WT_STAR_SHARE).concat(rest.slice(0, WT_PER_TEST - WT_STAR_SHARE));
+  shuffle(pick);
+  WT.list = pick; WT.i = 0; WT.results = [];
   $('writeWords').innerHTML = wordListHtml(WRITING_WORDS);
   show('writing');
-  renderWriting();
+  renderWT();
 }
-function renderWriting(){
+function wtScore(){
+  var s = 0;
+  for(var i = 0; i < WT.results.length; i++){ if(WT.results[i].pass) s++; }
+  return s;
+}
+function wtSpeakFirst(){
+  if(WT.graded || WT.busy) return;
+  speakText(WT.list[WT.i], 0.85);
+}
+function wtSpeakRepeat(){
+  if(WT.graded || WT.busy) return;
+  WT.repeats++;
+  /* like a considerate officer: repeats are read a little slower */
+  speakText(WT.list[WT.i], 0.7);
+}
+
+/* ----- "Ask to repeat" — he must genuinely ASK, out loud ----- */
+/* Tapping the mic button only opens the microphone. He then has to say a real,
+   understandable request ("Could you repeat the sentence, please?"). The AI decides
+   whether it understood a request to repeat; if it didn't, nothing is repeated and
+   he is coached to ask again — exactly the skill he needs at the interview. */
+var WTASK = { state:'idle', recorder:null, chunks:[], timer:null, recognizer:null, honor:false };
+var WT_ASK_JUDGE =
+  'You play the USCIS officer in a practice test. The student pressed a microphone button and spoke. ' +
+  'Decide whether what they said is a comprehensible spoken request, in English, to repeat the dictated sentence. ' +
+  'Any clear phrasing counts: "could you repeat the sentence, please", "please say that again", "one more time, please", "pardon me?", "sorry, I did not hear you". ' +
+  'It does NOT count if the words are unrelated, empty, or so garbled that a patient officer could not tell they were being asked to repeat. ' +
+  'Reply ONLY with compact JSON: {"understood": boolean, "note": string}. note = empty string if understood; otherwise one short, warm sentence telling the student the officer could not understand, with an example of how to ask. Never mention AI.';
+
+function wtAskClick(){
+  if(WT.graded || WT.busy) return;
+  if(WTASK.state === 'idle'){ wtAskStart(); }
+  else if(WTASK.state === 'recording'){ wtAskStop(); }
+}
+function wtAskUi(state){
+  var b = $('writeRepeatBtn');
+  if(state === 'recording'){
+    b.textContent = '■ I’m done asking';
+    b.classList.add('recording');
+    $('writeListening').removeAttribute('hidden');
+  } else if(state === 'busy'){
+    b.textContent = '🎤 Ask to repeat that';
+    b.classList.remove('recording');
+    b.disabled = true;
+    $('writeListening').setAttribute('hidden','');
+  } else {
+    b.textContent = '🎤 Ask to repeat that';
+    b.classList.remove('recording');
+    b.disabled = false;
+    $('writeListening').setAttribute('hidden','');
+  }
+}
+function wtAskNote(msg){
+  var n = $('writeAskNote');
+  n.innerHTML = msg;
+  n.removeAttribute('hidden');
+}
+function wtAskStart(){
+  stopAllSpeech();                       // never record our own voice
+  $('writeAskNote').setAttribute('hidden','');
+  var canRecord = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  if(getKey() && canRecord){ wtAskWhisper(); }
+  else if(sttSupported){ wtAskStt(); }
+  else {
+    /* no microphone support at all: honor system, but still make him say it */
+    if(WTASK.honor){ WTASK.honor = false; $('writeAskNote').setAttribute('hidden',''); wtAskGranted(); }
+    else {
+      WTASK.honor = true;
+      wtAskNote('This browser can’t listen, so say it out loud anyway — <b>“Could you repeat the sentence, please?”</b> — then tap the button again.');
+    }
+  }
+}
+function wtAskWhisper(){
+  ensureMic().then(function(stream){
+    WTASK.chunks = [];
+    try{ WTASK.recorder = new MediaRecorder(stream); }
+    catch(e){ WTASK.recorder = new MediaRecorder(stream, {}); }
+    WTASK.recorder.ondataavailable = function(ev){ if(ev.data && ev.data.size) WTASK.chunks.push(ev.data); };
+    WTASK.recorder.onstop = function(){
+      var type = (WTASK.recorder && WTASK.recorder.mimeType) || 'audio/webm';
+      wtAskTranscribe(new Blob(WTASK.chunks, { type:type }), type);
+    };
+    WTASK.state = 'recording';
+    wtAskUi('recording');
+    WTASK.recorder.start();
+    clearTimeout(WTASK.timer);
+    WTASK.timer = setTimeout(function(){ if(WTASK.state === 'recording') wtAskStop(); }, 8000);
+  }).catch(function(err){
+    WTASK.state = 'idle'; wtAskUi('idle');
+    if(err && (err.name === 'NotAllowedError' || err.name === 'SecurityError')){
+      wtAskNote('The microphone is blocked. Please allow microphone access, then tap <b>Ask to repeat that</b> again.');
+    } else if(sttSupported){ wtAskStt(); }
+    else { wtAskNote('No microphone is available on this device.'); }
+  });
+}
+function wtAskTranscribe(blob, type){
+  WTASK.state = 'busy'; wtAskUi('busy');
+  var ext = type.indexOf('mp4') >= 0 ? 'mp4' : type.indexOf('ogg') >= 0 ? 'ogg' : type.indexOf('wav') >= 0 ? 'wav' : 'webm';
+  var fd = new FormData();
+  fd.append('file', blob, 'ask.' + ext);
+  fd.append('model', 'whisper-1');
+  fd.append('language', 'en');
+  fetch('https://api.openai.com/v1/audio/transcriptions', {
+    method:'POST', headers:{ 'Authorization':'Bearer ' + getKey() }, body: fd
+  }).then(function(resp){
+    if(!resp.ok){ wtAskJudgeLexical(''); return; }
+    resp.json().then(function(data){ wtAskJudge((data && data.text) || ''); });
+  }).catch(function(){
+    WTASK.state = 'idle'; wtAskUi('idle');
+    wtAskNote('No internet connection right now — tap and ask again.');
+  });
+}
+function wtAskStt(){
+  try{
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(WTASK.recognizer){ try{ WTASK.recognizer.abort(); }catch(e){} }
+    WTASK.recognizer = new SR();
+    WTASK.recognizer.lang = 'en-US'; WTASK.recognizer.interimResults = false; WTASK.recognizer.maxAlternatives = 4;
+    WTASK.recognizer._alts = [];
+    WTASK.recognizer.onresult = function(e){
+      var alts = [];
+      for(var i = 0; i < e.results.length; i++){ var r = e.results[i]; for(var j = 0; j < r.length; j++){ alts.push(r[j].transcript); } }
+      WTASK.recognizer._alts = alts;
+    };
+    WTASK.recognizer.onerror = function(ev){
+      WTASK.state = 'idle'; wtAskUi('idle');
+      wtAskNote(ev.error === 'not-allowed' || ev.error === 'service-not-allowed'
+        ? 'The microphone is blocked. Please allow it, then tap <b>Ask to repeat that</b> again.'
+        : 'We didn’t catch that — tap and ask again, nice and clear.');
+    };
+    WTASK.recognizer.onend = function(){
+      if(WTASK.state === 'recording' || WTASK.state === 'busy'){
+        var alts = (WTASK.recognizer && WTASK.recognizer._alts) || [];
+        wtAskJudgeLexicalAlts(alts);
+      }
+    };
+    WTASK.state = 'recording';
+    wtAskUi('recording');
+    WTASK.recognizer.start();
+    clearTimeout(WTASK.timer);
+    WTASK.timer = setTimeout(function(){ if(WTASK.state === 'recording') wtAskStop(); }, 8000);
+  }catch(err){ WTASK.state = 'idle'; wtAskUi('idle'); wtAskNote('Could not start the microphone.'); }
+}
+function wtAskStop(){
+  clearTimeout(WTASK.timer);
+  if(WTASK.recorder && WTASK.state === 'recording'){
+    try{ WTASK.recorder.stop(); }catch(e){ WTASK.state = 'idle'; wtAskUi('idle'); }
+  } else if(WTASK.recognizer && WTASK.state === 'recording'){
+    WTASK.state = 'busy'; wtAskUi('busy');
+    try{ WTASK.recognizer.stop(); }catch(e){}
+  }
+}
+function wtAskCancel(){
+  clearTimeout(WTASK.timer);
+  if(WTASK.recognizer){ try{ WTASK.recognizer.onend = null; WTASK.recognizer.abort(); }catch(e){} WTASK.recognizer = null; }
+  if(WTASK.recorder){ try{ WTASK.recorder.onstop = null; if(WTASK.recorder.state !== 'inactive') WTASK.recorder.stop(); }catch(e){} WTASK.recorder = null; }
+  WTASK.chunks = []; WTASK.state = 'idle'; WTASK.honor = false;
+  var l = $('writeListening'); if(l) l.setAttribute('hidden','');
+  var n = $('writeAskNote'); if(n) n.setAttribute('hidden','');
+  wtAskUi('idle');
+}
+/* AI judge (with key): did the officer understand a request to repeat? */
+function wtAskJudge(text){
+  if(!text || !text.trim()){ wtAskDenied('We didn’t hear any words.'); return; }
+  var body = {
+    model:'gpt-4o-mini', temperature:0, max_tokens:120,
+    response_format:{ type:'json_object' },
+    messages:[
+      { role:'system', content: WT_ASK_JUDGE },
+      { role:'user', content: 'The student said: "' + text.replace(/"/g,"'") + '"' }
+    ]
+  };
+  fetch('https://api.openai.com/v1/chat/completions', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + getKey() },
+    body: JSON.stringify(body)
+  }).then(function(resp){
+    if(!resp.ok){ wtAskJudgeLexical(text); return; }
+    resp.json().then(function(data){
+      var out = {};
+      try{ out = JSON.parse(data.choices[0].message.content); }catch(e){ out = {}; }
+      if(typeof out.understood !== 'boolean'){ wtAskJudgeLexical(text); return; }
+      if(out.understood){ wtAskGranted(); }
+      else { wtAskDenied(out.note || '', text); }
+    });
+  }).catch(function(){ wtAskJudgeLexical(text); });
+}
+/* Fallback judge (no key / API trouble): keyword check on the transcript */
+function wtAskLooksLikeRequest(text){
+  var t = ' ' + normalize(text) + ' ';
+  return /repeat|again|pardon|one more|say that|say it|excuse me|did not hear|didn t hear|couldn t hear|could not hear|sorry/.test(t);
+}
+function wtAskJudgeLexical(text){
+  if(!text || !text.trim()){ wtAskDenied('We didn’t hear any words.'); return; }
+  if(wtAskLooksLikeRequest(text)){ wtAskGranted(); }
+  else { wtAskDenied('', text); }
+}
+function wtAskJudgeLexicalAlts(alts){
+  var heard = '';
+  for(var i = 0; i < alts.length; i++){ if(alts[i] && alts[i].trim()){ heard = alts[i]; break; } }
+  if(!heard){ wtAskDenied('We didn’t hear any words.'); return; }
+  var ok = false;
+  for(var j = 0; j < alts.length; j++){ if(wtAskLooksLikeRequest(alts[j])){ ok = true; break; } }
+  if(ok){ wtAskGranted(); } else { wtAskDenied('', heard); }
+}
+function wtAskGranted(){
+  WTASK.state = 'idle'; wtAskUi('idle');
+  $('writeAskNote').setAttribute('hidden','');
+  toast('“Of course.” 👂');
+  setTimeout(function(){ if($('writing').classList.contains('active') && !WT.graded) wtSpeakRepeat(); }, 600);
+}
+function wtAskDenied(judgeNote, heard){
+  WTASK.state = 'idle'; wtAskUi('idle');
+  var msg = judgeNote
+    ? escapeHtml(judgeNote)
+    : 'The officer didn’t understand that as a request to repeat' + (heard ? ' — we heard: “' + escapeHtml(heard) + '”' : '') + '.';
+  wtAskNote(msg + '<br>Try asking clearly: <b>“Could you repeat the sentence, please?”</b>');
+}
+function renderWT(){
   stopAllSpeech();
-  WRITE.busy = false;
-  $('writeCount').textContent = (WRITE.i + 1) + ' of ' + WRITE.n;
-  $('writeFill').style.width = Math.round((WRITE.i / WRITE.n) * 100) + '%';
-  $('writePreview').setAttribute('hidden',''); $('writePreview').innerHTML = '';
+  WT.busy = false; WT.graded = false; WT.repeats = 0;
+  var lined = (WT.i % 2 === 0);
+  var pad = $('notepad');
+  pad.classList.toggle('lined', lined);
+  pad.classList.remove('locked');
+  $('padBadge').textContent = lined ? '📄 Lined paper this time' : '⬜ No lines this time — the real tablet might not have any';
+  $('writeCount').textContent = (WT.i + 1) + ' of ' + WT.list.length;
+  $('writeScore').textContent = '⭐ ' + wtScore();
+  $('writeFill').style.width = Math.round((WT.i / WT.list.length) * 100) + '%';
   $('writeThinking').setAttribute('hidden','');
   $('writeResult').innerHTML = '';
   $('writeActions').setAttribute('hidden','');
-  $('writeShowBtn').style.display = '';
-  $('writePhoto').value = '';
-  if(getKey()){
-    $('writePhotoBtn').style.display = '';
-    $('writeHelp').innerHTML = 'Press <b>Hear the sentence</b>, write it on paper, then take a photo to check it.';
+  $('writeSelfGrade').setAttribute('hidden','');
+  $('writeGradeBtn').style.display = '';
+  $('writeRepeatBtn').style.display = canSpeak ? '' : 'none';
+  $('writeSkipBtn').style.display = '';
+  $('padUndo').disabled = false; $('padClear').disabled = false;
+  wtAskCancel();
+  if(canSpeak){
+    $('writeHelp').innerHTML = 'Listen to the <b>whole</b> sentence first, then write it. Need it again? Tap 🎤 and <b>ask out loud</b> — “Could you repeat the sentence, please?” Asking is always okay. 💛';
   } else {
-    $('writePhotoBtn').style.display = 'none';
-    $('writeHelp').innerHTML = 'Press <b>Hear the sentence</b> and write it on paper. Then tap <b>Show me the sentence</b> to check yourself. <br>(Add an OpenAI key in ⚙️ Settings to grade photos automatically.)';
+    $('writeHelp').innerHTML = 'This browser cannot read aloud. Copy this sentence in your best handwriting:<br><b>' + escapeHtml(WT.list[WT.i]) + '</b>';
   }
-  if(canSpeak){ setTimeout(function(){ if($('writing').classList.contains('active')) writeHear(); }, 350); }
-  else { $('writeHelp').innerHTML = 'Write this sentence on paper, then check it:<br><b>' + escapeHtml(WRITING_SENTENCES[WRITE.i]) + '</b>'; }
+  padReset();
+  requestAnimationFrame(padSize);
+  if(canSpeak){ setTimeout(function(){ if($('writing').classList.contains('active') && !WT.graded) wtSpeakFirst(); }, 450); }
 }
-function writeHear(){ speakText(WRITING_SENTENCES[WRITE.i], 0.8); }
-function writeShow(){
-  var s = WRITING_SENTENCES[WRITE.i];
-  $('writeResult').innerHTML =
-    '<div class="result"><div class="rtitle" style="color:var(--anslabel)">The sentence was:</div>' +
-    '<div class="correct">' + escapeHtml(s) + '</div></div>';
-  $('writeActions').removeAttribute('hidden');
+
+/* ----- The notepad canvas ----- */
+var padCv = null, padCtx = null, padDpr = 1;
+var padStrokes = [], padCurrent = null, penSeen = false;
+
+function padInit(){
+  padCv = $('padCanvas'); padCtx = padCv.getContext('2d');
+  padCv.addEventListener('pointerdown', padDown);
+  padCv.addEventListener('pointermove', padMove);
+  padCv.addEventListener('pointerup', padUp);
+  padCv.addEventListener('pointercancel', padUp);
+  window.addEventListener('resize', function(){ if($('writing').classList.contains('active')) padSize(); });
 }
-function writePick(){ $('writePhoto').click(); }
-function onWritePhoto(e){
-  var file = e.target.files && e.target.files[0];
-  if(!file) return;
-  compressImage(file, function(dataUrl){
-    $('writePreview').innerHTML = '<img src="' + dataUrl + '" alt="your handwriting">';
-    $('writePreview').removeAttribute('hidden');
-    gradeWriting(dataUrl);
-  });
+function padSize(){
+  var r = padCv.parentNode.getBoundingClientRect();
+  if(r.width < 10) return;
+  padDpr = Math.min(window.devicePixelRatio || 1, 2);
+  padCv.width = Math.round(r.width * padDpr);
+  padCv.height = Math.round(r.height * padDpr);
+  padRedraw();
 }
-function compressImage(file, cb){
-  var rd = new FileReader();
-  rd.onload = function(){
-    var img = new Image();
-    img.onload = function(){
-      var max = 1024, w = img.width, h = img.height;
-      if(w > h && w > max){ h = Math.round(h * max / w); w = max; }
-      else if(h >= w && h > max){ w = Math.round(w * max / h); h = max; }
-      var c = document.createElement('canvas'); c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
-      try{ cb(c.toDataURL('image/jpeg', 0.82)); }catch(err){ cb(rd.result); }
-    };
-    img.onerror = function(){ cb(rd.result); };
-    img.src = rd.result;
-  };
-  rd.readAsDataURL(file);
+function padPos(e){
+  var r = padCv.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
-function gradeWriting(dataUrl){
+function midPt(a, b){ return { x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 }; }
+function inkStyle(ctx, k){
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#2c2a28'; ctx.fillStyle = '#2c2a28';
+  ctx.lineWidth = 4 * k;
+}
+function padDown(e){
+  if(WT.graded || WT.busy) return;
+  if(e.pointerType === 'pen'){ penSeen = true; }
+  else if(e.pointerType === 'touch' && penSeen){ return; }   // palm rejection once a stylus has been used
+  e.preventDefault();
+  try{ padCv.setPointerCapture(e.pointerId); }catch(err){}
+  padCurrent = { id: e.pointerId, pts: [padPos(e)] };
+}
+function padMove(e){
+  if(!padCurrent || e.pointerId !== padCurrent.id) return;
+  e.preventDefault();
+  var pts = padCurrent.pts, p = padPos(e), last = pts[pts.length - 1];
+  if(Math.abs(p.x - last.x) < 0.7 && Math.abs(p.y - last.y) < 0.7) return;
+  pts.push(p);
+  var n = pts.length, k = padDpr;
+  inkStyle(padCtx, k);
+  padCtx.beginPath();
+  if(n === 2){
+    padCtx.moveTo(pts[0].x * k, pts[0].y * k);
+    padCtx.lineTo(pts[1].x * k, pts[1].y * k);
+  } else {
+    var m1 = midPt(pts[n-3], pts[n-2]), m2 = midPt(pts[n-2], pts[n-1]);
+    padCtx.moveTo(m1.x * k, m1.y * k);
+    padCtx.quadraticCurveTo(pts[n-2].x * k, pts[n-2].y * k, m2.x * k, m2.y * k);
+  }
+  padCtx.stroke();
+}
+function padUp(e){
+  if(!padCurrent || e.pointerId !== padCurrent.id) return;
+  if(padCurrent.pts.length === 1){   // a single tap leaves a dot (an "i" dot, a period)
+    var p = padCurrent.pts[0], k = padDpr;
+    inkStyle(padCtx, k);
+    padCtx.beginPath(); padCtx.arc(p.x * k, p.y * k, 2 * k, 0, 6.29); padCtx.fill();
+  }
+  padStrokes.push(padCurrent.pts);
+  padCurrent = null;
+}
+function drawStroke(ctx, pts, k){
+  if(!pts.length) return;
+  inkStyle(ctx, k);
+  if(pts.length === 1){
+    ctx.beginPath(); ctx.arc(pts[0].x * k, pts[0].y * k, 2 * k, 0, 6.29); ctx.fill();
+    return;
+  }
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x * k, pts[0].y * k);
+  if(pts.length === 2){
+    ctx.lineTo(pts[1].x * k, pts[1].y * k);
+  } else {
+    var m = midPt(pts[0], pts[1]);
+    ctx.lineTo(m.x * k, m.y * k);
+    for(var i = 1; i < pts.length - 1; i++){
+      var m2 = midPt(pts[i], pts[i+1]);
+      ctx.quadraticCurveTo(pts[i].x * k, pts[i].y * k, m2.x * k, m2.y * k);
+    }
+    ctx.lineTo(pts[pts.length-1].x * k, pts[pts.length-1].y * k);
+  }
+  ctx.stroke();
+}
+function padRedraw(){
+  padCtx.clearRect(0, 0, padCv.width, padCv.height);
+  for(var s = 0; s < padStrokes.length; s++){ drawStroke(padCtx, padStrokes[s], padDpr); }
+}
+function padReset(){
+  padStrokes = []; padCurrent = null;
+  if(padCtx) padCtx.clearRect(0, 0, padCv.width, padCv.height);
+}
+function padUndoStroke(){
+  if(WT.graded || WT.busy) return;
+  padStrokes.pop();
+  padRedraw();
+}
+function padExport(){
+  var c = document.createElement('canvas');
+  c.width = padCv.width; c.height = padCv.height;
+  var x = c.getContext('2d');
+  x.fillStyle = '#ffffff'; x.fillRect(0, 0, c.width, c.height);
+  x.drawImage(padCv, 0, 0);
+  return c.toDataURL('image/png');
+}
+
+/* ----- Grading ----- */
+/* Safety net around the AI verdict: the rubric says capitalization and punctuation
+   never count, but small vision models sometimes flag them anyway. So we (1) drop any
+   error that is purely a case/punctuation complaint, and (2) force a pass whenever the
+   model's own transcription equals the target once case and punctuation are ignored. */
+function wtCaseNoiseError(e){
+  var s = String(e);
+  var q = s.match(/["“”']([^"“”']*)["“”']/g);
+  if(q && q.length){
+    var vals = q.map(function(x){ return x.replace(/["“”']/g,''); });
+    // every quoted thing is pure punctuation (a comma, a period…) → not a word, noise
+    var allPunct = vals.every(function(v){ return !/[a-z0-9]/i.test(v); });
+    if(allPunct) return true;                                          // missing word ","
+    if(vals.length >= 2 && vals[0].toLowerCase() === vals[1].toLowerCase() && vals[0] !== vals[1]) return true;   // "president" vs "President"
+  }
+  return /capitaliz|capital letter|upper.?case|lower.?case|small letter|punctuat|comma|apostrophe|full stop|question mark|exclamation/i.test(s);
+}
+function wtNormEq(a, b){
+  var na = normalize(a || ''), nb = normalize(b || '');
+  if(na === '' || nb === '') return false;
+  if(na === nb) return true;
+  // forgive word-spacing differences too: "d c" = "dc" ("Washington, D.C." vs "Washington DC").
+  // Letters and their order must still be identical, so real errors can't slip through.
+  return na.replace(/ /g,'') === nb.replace(/ /g,'');
+}
+function wtSanitizeVerdict(out, target){
+  var hadErrors = !!(out.errors && out.errors.length);
+  if(hadErrors){
+    out.errors = out.errors.filter(function(e){ return !wtCaseNoiseError(e); });
+  }
+  if(!out.tough_pass && wtNormEq(out.transcription, target)){
+    out.tough_pass = true; out.uscis_pass = true; out.errors = [];
+    out.note = 'Every word is right — capital letters and commas never count against you.';
+  } else if(!out.tough_pass && hadErrors && out.errors.length === 0){
+    out.tough_pass = true;
+    if(out.uscis_pass !== false){ out.uscis_pass = true; }
+    out.note = 'All good — the only differences were capitals or punctuation, and those never count.';
+  }
+  return out;
+}
+function wtLock(){
+  $('notepad').classList.add('locked');
+  $('padUndo').disabled = true; $('padClear').disabled = true;
+  $('writeGradeBtn').style.display = 'none';
+  $('writeRepeatBtn').style.display = 'none';
+  $('writeSkipBtn').style.display = 'none';
+}
+function wtGrade(){
+  if(WT.busy || WT.graded) return;
+  if(padStrokes.length === 0){ toast('Write the sentence first ✍️'); return; }
+  wtAskCancel();
+  stopAllSpeech();
   var key = getKey();
-  if(!key){ writeShow(); return; }
-  if(WRITE.busy) return; WRITE.busy = true;
+  if(!key){ wtSelfGradeStart(); return; }
+  WT.busy = true;
+  wtLock();
   $('writeThinking').removeAttribute('hidden');
-  $('writeResult').innerHTML = '';
-  var target = WRITING_SENTENCES[WRITE.i];
+  var target = WT.list[WT.i];
   var body = {
-    model: getModel(), temperature: 0, max_tokens: 300,
+    model: getModel(), temperature: 0, max_tokens: 400,
     response_format: { type: 'json_object' },
     messages: [
-      { role:'system', content:'You grade the USCIS naturalization WRITING test. The applicant heard a sentence and wrote it by hand; a photo of the handwriting is provided. Grade leniently like a real USCIS officer: spelling, capitalization, and punctuation mistakes are OK as long as the meaning is clear; numbers may be words or digits. Reply ONLY as compact JSON: {"transcription": string, "pass": boolean, "note": string}. transcription = your best reading of the handwriting. pass = true if it acceptably matches the target sentence. note = one short, warm sentence of feedback for an older adult learner.' },
+      { role:'system', content: WT_RUBRIC },
       { role:'user', content: [
-        { type:'text', text:'Target sentence: "' + target + '". Read the handwriting in this photo and grade it.' },
-        { type:'image_url', image_url: { url: dataUrl } }
+        { type:'text', text:'Target sentence: "' + target + '". Grade the handwriting in this image.' },
+        { type:'image_url', image_url: { url: padExport() } }
       ]}
     ]
   };
   fetch('https://api.openai.com/v1/chat/completions', {
     method:'POST',
-    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + key },
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + getKey() },
     body: JSON.stringify(body)
   }).then(function(resp){
     $('writeThinking').setAttribute('hidden','');
     if(!resp.ok){
-      var msg = resp.status === 401 ? 'That API key did not work. Please check it in ⚙️ Settings.'
-        : resp.status === 429 ? 'OpenAI is busy or the account is out of credit. Please try again soon.'
-        : 'Could not reach OpenAI (error ' + resp.status + '). You can self-check instead.';
-      writeError(msg); WRITE.busy = false; return;
+      var msg = resp.status === 401 ? 'That API key did not work — please check it in ⚙️ Settings. For now, check this one yourself:'
+        : resp.status === 429 ? 'OpenAI is busy or out of credit. For now, check this one yourself:'
+        : 'Could not reach the grader (error ' + resp.status + '). Check this one yourself:';
+      WT.busy = false;
+      wtSelfGradeStart(msg);
+      return;
     }
     resp.json().then(function(data){
       var out = {};
       try{ out = JSON.parse(data.choices[0].message.content); }catch(e){ out = {}; }
-      showWriteResult(!!out.pass, out.transcription || '', out.note || '', target);
-      WRITE.busy = false;
+      WT.busy = false;
+      if(typeof out.tough_pass !== 'boolean'){ wtSelfGradeStart('The grader gave a confusing answer. Check this one yourself:'); return; }
+      out = wtSanitizeVerdict(out, target);
+      wtRecord(out.tough_pass, out);
     });
   }).catch(function(){
     $('writeThinking').setAttribute('hidden','');
-    writeError('No internet connection, or the request was blocked. You can self-check instead.');
-    WRITE.busy = false;
+    WT.busy = false;
+    wtSelfGradeStart('No internet connection right now. Check this one yourself:');
   });
 }
-function writeError(msg){
+function wtSelfGradeStart(reason){
+  wtLock();
+  var target = WT.list[WT.i];
   $('writeResult').innerHTML =
-    '<div class="result fail"><div class="rtitle">Hmm —</div><div class="heard">' + escapeHtml(msg) + '</div></div>';
-  $('writeActions').removeAttribute('hidden');
-}
-function showWriteResult(ok, heard, note, target){
-  $('writeResult').innerHTML =
-    '<div class="result ' + (ok ? 'pass' : 'fail') + '">' +
-      '<div class="rtitle">' + (ok ? '✓ Nicely done!' : 'Almost — keep practicing') + '</div>' +
-      (note ? '<div class="heard">' + escapeHtml(note) + '</div>' : '') +
-      (heard ? '<div class="heard">We read: “' + escapeHtml(heard) + '”</div>' : '') +
-      '<div class="correct">Correct: ' + escapeHtml(target) + '</div>' +
+    '<div class="result">' +
+      (reason ? '<div class="heard">' + escapeHtml(reason) + '</div>' : '') +
+      '<div class="rtitle" style="color:var(--anslabel)">The sentence was:</div>' +
+      '<div class="correct">' + escapeHtml(target) + '</div>' +
+      '<div class="heard">Compare word by word. Strict rules: every word written out in full, in order, spelled correctly. Capitals and commas don’t matter. Numbers can be digits or words.</div>' +
     '</div>';
-  $('writeActions').removeAttribute('hidden');
-  if(ok) celebrate();
+  $('writeSelfGrade').removeAttribute('hidden');
 }
-function writeGot(){ celebrate(); writeNext(); }
-function writeRetry(){ renderWriting(); }
-function writeNext(){ WRITE.i++; if(WRITE.i >= WRITE.n){ finishWriting(); } else { renderWriting(); } }
-function finishWriting(){
+function wtRecord(pass, info){
+  WT.graded = true; WT.busy = false;
+  wtLock();
+  $('writeSelfGrade').setAttribute('hidden','');
+  var target = WT.list[WT.i];
+  WT.results.push({
+    target: target,
+    pass: !!pass,
+    uscis: (info && typeof info.uscis_pass === 'boolean') ? info.uscis_pass : null,
+    transcription: (info && info.transcription) || '',
+    errors: (info && info.errors && info.errors.length ? info.errors.slice(0, 6) : []),
+    repeats: WT.repeats
+  });
+  $('writeScore').textContent = '⭐ ' + wtScore();
+  var r = WT.results[WT.results.length - 1];
+  var html =
+    '<div class="result ' + (pass ? 'pass' : 'fail') + '">' +
+      '<div class="rtitle">' + (pass ? '✓ Correct — every word!' : '✗ Not an exact match') + '</div>' +
+      (r.transcription ? '<div class="heard">We read: “' + escapeHtml(r.transcription) + '”</div>' : '') +
+      '<div class="correct">The sentence was: ' + escapeHtml(target) + '</div>';
+  if(r.errors.length){
+    html += '<ul class="errlist">';
+    for(var i = 0; i < r.errors.length; i++){ html += '<li>' + escapeHtml(r.errors[i]) + '</li>'; }
+    html += '</ul>';
+  }
+  if(info && info.note){ html += '<div class="heard">' + escapeHtml(info.note) + '</div>'; }
+  html += '</div>';
+  if(!pass && r.uscis === true){
+    html += '<div class="subverdict pass">💡 Good news: a real USCIS officer would likely have <b>accepted</b> this one — they forgive spelling. We grade harder on purpose.</div>';
+  } else if(!pass && r.uscis === false){
+    html += '<div class="subverdict warn">This one would not pass with a real officer either — usually a changed or missing word. Listen extra carefully for the little words like “has” and “is”.</div>';
+  }
+  $('writeResult').innerHTML = html;
+  $('writeActions').removeAttribute('hidden');
+  if(pass) celebrate();
+}
+function wtSkip(){
+  if(WT.busy || WT.graded) return;
+  wtAskCancel();
+  stopAllSpeech();
+  wtRecord(false, { transcription:'', errors:[], note:'Skipped — on the real test, asking to repeat is better than giving up. 💛', uscis_pass:null });
+}
+function wtNext(){
+  WT.i++;
+  if(WT.i >= WT.list.length){ finishWT(); } else { renderWT(); }
+}
+function finishWT(){
+  wtAskCancel();
+  stopAllSpeech();
+  releaseMic();
+  var n = WT.list.length, s = wtScore();
+  var pct = n ? Math.round((s / n) * 100) : 0;
+  var passed = pct >= WT_PASS_PCT;
+  lastFinish = startWriting;
+  show('wtdone');
   $('writeFill').style.width = '100%';
-  finishMode({ emoji:'✍️', title:'Writing practice done!',
-    scoreText:'You went through all ' + WRITE.n + ' sentences.',
-    msg:'On the real test you only need to write 1 of 3 correctly. Spelling slips are okay if the meaning is clear.',
-    again:startWriting });
+  $('wtEmoji').textContent = passed ? '🏅' : '📚';
+  $('wtTitle').textContent = passed ? 'You passed the practice test!' : 'Not this time — and that’s okay';
+  var pctEl = $('wtPct');
+  pctEl.textContent = pct + '%';
+  pctEl.className = 'wtpct ' + (passed ? 'pass' : 'fail');
+  $('wtScoreLine').textContent = 'You wrote ' + s + ' of ' + n + ' sentences perfectly.';
+  $('wtMsg').innerHTML = passed
+    ? 'And remember — this practice test is <b>much harder</b> than the real one. Here you needed ' + WT_PASS_PCT + '%. At the interview you only need <b>1 sentence out of 3</b>. You are more than ready. 💛'
+    : 'This practice test is graded <b>much harder</b> than the real one on purpose. At the interview you only need <b>1 sentence out of 3</b> — a score like this can still pass on the day. Look over the sentences below, then try again.';
+  var misses = [];
+  for(var i = 0; i < WT.results.length; i++){ if(!WT.results[i].pass) misses.push(WT.results[i]); }
+  var html = '';
+  if(misses.length){
+    html += '<div class="reviewhead">Worth another look:</div>';
+    for(var m = 0; m < misses.length; m++){
+      var r = misses[m];
+      html += '<div class="reviewitem"><div class="rv-target">' + escapeHtml(r.target) + '</div>';
+      if(r.transcription){ html += '<div class="rv-note">You wrote: “' + escapeHtml(r.transcription) + '”</div>'; }
+      if(r.errors.length){
+        html += '<div class="rv-note">' + escapeHtml(r.errors[0]) + (r.errors.length > 1 ? ' (+' + (r.errors.length - 1) + ' more)' : '') + '</div>';
+      }
+      if(r.uscis === true){ html += '<div class="rv-note ok">A real officer would likely have accepted this one.</div>'; }
+      html += '</div>';
+    }
+  }
+  $('wtReview').innerHTML = html;
+  if(passed) confettiBurst();
 }
 
 /* ===================== SPEAKING ===================== */
@@ -1253,7 +1840,7 @@ function clearKey(){
 /* ===== Wire up ===== */
 if(!canSpeak){
   $('speakBtn').style.display = 'none';
-  ['writeHearBtn','speakHearBtn'].forEach(function(id){ var e = $(id); if(e) e.style.display = 'none'; });
+  ['writeRepeatBtn','speakHearBtn'].forEach(function(id){ var e = $(id); if(e) e.style.display = 'none'; });
 }
 
 /* Menu */
@@ -1287,14 +1874,18 @@ $('readMicBtn').addEventListener('click', readMicClick);
 $('readRetryBtn').addEventListener('click', readRetry);
 $('readNextBtn').addEventListener('click', readNext);
 
-/* Writing */
-$('writeHearBtn').addEventListener('click', writeHear);
-$('writePhotoBtn').addEventListener('click', writePick);
-$('writePhoto').addEventListener('change', onWritePhoto);
-$('writeShowBtn').addEventListener('click', writeShow);
-$('writeGotBtn').addEventListener('click', writeGot);
-$('writeRetryBtn').addEventListener('click', writeRetry);
-$('writeNextBtn').addEventListener('click', writeNext);
+/* Writing (notepad test) */
+$('writeRepeatBtn').addEventListener('click', wtAskClick);
+$('writeGradeBtn').addEventListener('click', wtGrade);
+$('writeSkipBtn').addEventListener('click', wtSkip);
+$('writeNextBtn').addEventListener('click', wtNext);
+$('padUndo').addEventListener('click', padUndoStroke);
+$('padClear').addEventListener('click', function(){ if(!WT.graded && !WT.busy) padReset(); });
+$('selfPassBtn').addEventListener('click', function(){ wtRecord(true, null); });
+$('selfFailBtn').addEventListener('click', function(){ wtRecord(false, null); });
+$('wtAgainBtn').addEventListener('click', startWriting);
+$('wtMenuBtn').addEventListener('click', goMenu);
+padInit();
 
 /* Speaking */
 $('speakHearBtn').addEventListener('click', speakHear);
