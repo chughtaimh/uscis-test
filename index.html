@@ -190,8 +190,14 @@
   .result .correct{ font-weight:800; font-size:18px; margin-top:8px; color:var(--ansink); }
 
   /* ---------- Notepad writing test ---------- */
+  /* Stylus safety: nothing on the writing screen may be text-selected or trigger the
+     iOS callout — a pen stroke that strays outside the canvas must never select words. */
+  #writing, #writing *{ -webkit-user-select:none; -moz-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  /* The whole panel around the canvas refuses pan/zoom gestures, so a resting palm
+     can't start a page scroll that makes Safari cancel the pen stroke mid-word. */
+  #writePanel{ touch-action:none; overscroll-behavior:none; }
   .padbadge{ display:inline-block; font-size:14px; font-weight:800; color:var(--ink-soft); background:var(--bg2); border-radius:999px; padding:6px 14px; margin-bottom:10px; }
-  .notepad{ position:relative; width:100%; height:320px; border-radius:18px; background:#fffdf8; box-shadow:inset 0 2px 8px rgba(140,100,60,.16); overflow:hidden; }
+  .notepad{ position:relative; width:100%; height:min(58vh, 430px); min-height:300px; border-radius:18px; background:#fffdf8; box-shadow:inset 0 2px 8px rgba(140,100,60,.16); overflow:hidden; }
   .notepad.lined{ background-image:repeating-linear-gradient(to bottom, transparent 0, transparent 62px, #dcc9ae 62px, #dcc9ae 64px); background-position:0 22px; }
   .notepad canvas{ position:absolute; inset:0; width:100%; height:100%; touch-action:none; cursor:crosshair; }
   .notepad.locked canvas{ pointer-events:none; }
@@ -382,7 +388,7 @@
     <div class="progresstrack"><div id="writeFill" class="progressfill"></div></div>
     <div class="gap"></div>
 
-    <div class="panel">
+    <div class="panel" id="writePanel">
       <div class="panel-label">✍️ Listen, then write it below</div>
       <div class="center"><span id="padBadge" class="padbadge">📄 Lined paper this time</span></div>
       <div id="writeHelp" class="help" style="margin:0 0 12px;">Listen to the whole sentence first, then write it.</div>
@@ -1537,12 +1543,30 @@ function renderWT(){
 var padCv = null, padCtx = null, padDpr = 1;
 var padStrokes = [], padCurrent = null, penSeen = false;
 
+/* How far outside the canvas a PEN stroke may begin and still count (CSS px).
+   Big handwriting overshoots the box constantly — the tail of a "g", the start of a
+   capital "W". Those near-miss strokes are captured and clamped onto the paper instead
+   of being lost to the page (where iPad would select text with them). */
+var PAD_MARGIN = 48;
 function padInit(){
   padCv = $('padCanvas'); padCtx = padCv.getContext('2d');
-  padCv.addEventListener('pointerdown', padDown);
-  padCv.addEventListener('pointermove', padMove);
-  padCv.addEventListener('pointerup', padUp);
-  padCv.addEventListener('pointercancel', padUp);
+  var panel = $('writePanel');
+  /* Down on the whole panel (near-miss catchment); move/up on the document so a
+     stroke can never die just because the pen crossed the canvas edge mid-word. */
+  panel.addEventListener('pointerdown', padDown);
+  document.addEventListener('pointermove', padMove);
+  document.addEventListener('pointerup', padUp);
+  document.addEventListener('pointercancel', padUp);
+  /* Belt-and-suspenders for iPad Safari: kill native touch gestures (selection,
+     scroll, callout) anywhere on the panel except its buttons, so a resting palm
+     can't start a scroll that cancels the pen stroke. */
+  ['touchstart','touchmove'].forEach(function(t){
+    panel.addEventListener(t, function(e){
+      if(!$('writing').classList.contains('active')) return;
+      if(e.target && e.target.closest && e.target.closest('button')) return;
+      e.preventDefault();
+    }, { passive:false });
+  });
   window.addEventListener('resize', function(){ if($('writing').classList.contains('active')) padSize(); });
 }
 function padSize(){
@@ -1554,8 +1578,13 @@ function padSize(){
   padRedraw();
 }
 function padPos(e){
+  /* clamp into the paper: a stroke that strays past the edge draws along it
+     instead of vanishing */
   var r = padCv.getBoundingClientRect();
-  return { x: e.clientX - r.left, y: e.clientY - r.top };
+  return {
+    x: Math.min(Math.max(e.clientX - r.left, 0), r.width),
+    y: Math.min(Math.max(e.clientY - r.top, 0), r.height)
+  };
 }
 function midPt(a, b){ return { x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 }; }
 function inkStyle(ctx, k){
@@ -1564,11 +1593,17 @@ function inkStyle(ctx, k){
   ctx.lineWidth = 4 * k;
 }
 function padDown(e){
+  if(!$('writing').classList.contains('active')) return;
   if(WT.graded || WT.busy) return;
+  if(padCurrent) return;                                     // one stroke at a time
+  if(e.target && e.target.closest && e.target.closest('button')) return;   // Undo/Clear taps are not ink
   if(e.pointerType === 'pen'){ penSeen = true; }
   else if(e.pointerType === 'touch' && penSeen){ return; }   // palm rejection once a stylus has been used
+  /* pen strokes get a grace margin around the paper; finger/mouse must start on it */
+  var m = (e.pointerType === 'pen') ? PAD_MARGIN : 0;
+  var r = padCv.getBoundingClientRect();
+  if(e.clientX < r.left - m || e.clientX > r.right + m || e.clientY < r.top - m || e.clientY > r.bottom + m) return;
   e.preventDefault();
-  try{ padCv.setPointerCapture(e.pointerId); }catch(err){}
   padCurrent = { id: e.pointerId, pts: [padPos(e)] };
 }
 function padMove(e){
