@@ -284,7 +284,7 @@
         <span class="mi writing">✍️</span>
         <span class="mwrap">
           <span class="mt">Writing</span>
-          <span class="md">A real 20-sentence test — write right on the screen</span>
+          <span class="md">A real 10-sentence test — write right on the screen</span>
         </span>
         <span class="marrow">›</span>
       </button>
@@ -382,7 +382,7 @@
   <section id="writing" class="screen">
     <div class="modetop">
       <button class="backbtn" data-menu>← Menu</button>
-      <span id="writeCount" class="mtcount">1 of 20</span>
+      <span id="writeCount" class="mtcount">1 of 10</span>
       <span id="writeScore" class="mtscore">⭐ 0</span>
     </div>
     <div class="progresstrack"><div id="writeFill" class="progressfill"></div></div>
@@ -760,7 +760,7 @@ var READING_SENTENCES = [
 /* Writing test sentence bank.
    Built from the official USCIS writing vocabulary (M-1178) plus sentences reported
    verbatim from real interviews. star:1 = frequently reported on real tests; each
-   20-sentence practice test draws about two-thirds of its sentences from those. */
+   10-sentence practice test draws about two-thirds of its sentences from those. */
 var WT_BANK = [
   {t:"Washington was the first President.", star:1},
   {t:"Adams was the second President.", star:1},
@@ -1187,12 +1187,12 @@ function finishReading(){
     again:startReading });
 }
 
-/* ===================== WRITING — the 20-sentence notepad test ===================== */
+/* ===================== WRITING — the 10-sentence notepad test ===================== */
 /* Simulates the real USCIS tablet: the sentence is dictated aloud (never shown while
    writing), the student handwrites it on the canvas below, and an AI grader marks it
    like a strict examiner. Passing the practice test needs 70% — far harsher than the
    real test's 1-of-3 — so a pass here means genuine readiness. */
-var WT_PER_TEST = 20, WT_STAR_SHARE = 13, WT_PASS_PCT = 70;
+var WT_PER_TEST = 10, WT_STAR_SHARE = 7, WT_PASS_PCT = 70;
 var WT = { list:[], i:0, results:[], busy:false, graded:false, repeats:0 };
 
 function getKey(){
